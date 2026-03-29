@@ -1,10 +1,10 @@
 # 8 * 80GiB; 45min
 # If you're doing full-parameter training, you'll need 64 × 80 GiB of GPU memory
 
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=8 \
 IMAGE_MAX_TOKEN_NUM=1024 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 megatron sft \
     --model Qwen/Qwen3-VL-235B-A22B-Instruct \
     --save_safetensors true \

@@ -4,9 +4,9 @@
 # https://github.com/Dao-AILab/flash-attention/tree/main#flashattention-3-beta-release
 # pip install "transformers==4.53.*"
 
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model Qwen/Qwen2.5-7B \
     --tuner_type full \

@@ -135,7 +135,7 @@ uv pip install -e . --torch-backend=auto
 |              | 范围           | 推荐                  | 备注                 |
 |--------------|--------------|---------------------|--------------------|
 | python       | >=3.9        | 3.11/3.12            |                    |
-| cuda         |              | cuda12              | 使用cpu、npu、mps则无需安装 |
+| musa         |              | musa12              | 使用cpu、npu、mps则无需安装 |
 | torch        | >=2.0        | 2.8.0/2.10.0         |                    |
 | transformers | >=4.33       | 4.57.6/5.3.0        |                    |
 | modelscope   | >=1.23       |                     |                    |
@@ -159,7 +159,7 @@ uv pip install -e . --torch-backend=auto
 ### 命令行（推荐）
 ```shell
 # 13GB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen3-4B-Instruct-2507 \
     --tuner_type lora \
@@ -198,7 +198,7 @@ swift sft \
 
 ```shell
 # 使用交互式命令行进行推理
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --stream true \
@@ -206,7 +206,7 @@ swift infer \
     --max_new_tokens 2048
 
 # merge-lora并使用vLLM进行推理加速
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --stream true \
@@ -219,7 +219,7 @@ swift infer \
 
 最后，使用以下命令将模型推送到ModelScope：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift export \
     --adapters output/vx-xxx/checkpoint-xxx \
     --push_to_hub true \
@@ -321,7 +321,7 @@ print(f'response: {resp_list[0].choices[0].message.content}')
 ```shell
 # 8*A100
 NPROC_PER_NODE=8 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 swift pt \
     --model Qwen/Qwen2.5-7B \
     --dataset swift/chinese-c4 \
@@ -335,7 +335,7 @@ swift pt \
 
 微调：
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift sft \
+MUSA_VISIBLE_DEVICES=0 swift sft \
     --model Qwen/Qwen2.5-7B-Instruct \
     --dataset AI-ModelScope/alpaca-gpt4-data-zh \
     --tuner_type lora \
@@ -345,7 +345,7 @@ CUDA_VISIBLE_DEVICES=0 swift sft \
 
 RLHF：
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift rlhf \
+MUSA_VISIBLE_DEVICES=0 swift rlhf \
     --rlhf_type dpo \
     --model Qwen/Qwen2.5-7B-Instruct \
     --dataset hjh0119/shareAI-Llama3-DPO-zh-en-emoji \
@@ -372,7 +372,7 @@ ms-swift支持使用Megatron并行技术加速训练，包括大规模集群训�
 
 
 ```shell
-NPROC_PER_NODE=2 CUDA_VISIBLE_DEVICES=0,1 megatron sft \
+NPROC_PER_NODE=2 MUSA_VISIBLE_DEVICES=0,1 megatron sft \
     --model Qwen/Qwen2.5-7B-Instruct \
     --save_safetensors true \
     --dataset AI-ModelScope/alpaca-gpt4-data-zh \
@@ -397,7 +397,7 @@ ms-swift支持丰富GRPO族算法：
 | [Reinforce++](https://swift.readthedocs.io/zh-cn/latest/Instruction/GRPO/AdvancedResearch/REINFORCEPP.html) | ✅ | ✅| ✅ | ✅ |
 
 ```shell
-CUDA_VISIBLE_DEVICES=0,1,2,3 NPROC_PER_NODE=4 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 NPROC_PER_NODE=4 \
 swift rlhf \
     --rlhf_type grpo \
     --model Qwen/Qwen2.5-7B-Instruct \
@@ -411,14 +411,14 @@ swift rlhf \
 
 ### 推理
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift infer \
+MUSA_VISIBLE_DEVICES=0 swift infer \
     --model Qwen/Qwen2.5-7B-Instruct \
     --stream true \
     --infer_backend transformers \
     --max_new_tokens 2048
 
 # LoRA
-CUDA_VISIBLE_DEVICES=0 swift infer \
+MUSA_VISIBLE_DEVICES=0 swift infer \
     --model Qwen/Qwen2.5-7B-Instruct \
     --adapters swift/test_lora \
     --stream true \
@@ -429,7 +429,7 @@ CUDA_VISIBLE_DEVICES=0 swift infer \
 
 ### 界面推理
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift app \
+MUSA_VISIBLE_DEVICES=0 swift app \
     --model Qwen/Qwen2.5-7B-Instruct \
     --stream true \
     --infer_backend transformers \
@@ -439,14 +439,14 @@ CUDA_VISIBLE_DEVICES=0 swift app \
 
 ### 部署
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift deploy \
+MUSA_VISIBLE_DEVICES=0 swift deploy \
     --model Qwen/Qwen2.5-7B-Instruct \
     --infer_backend vllm
 ```
 
 ### 采样
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift sample \
+MUSA_VISIBLE_DEVICES=0 swift sample \
     --model LLM-Research/Meta-Llama-3.1-8B-Instruct \
     --sampler_engine transformers \
     --num_return_sequences 5 \
@@ -455,7 +455,7 @@ CUDA_VISIBLE_DEVICES=0 swift sample \
 
 ### 评测
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift eval \
+MUSA_VISIBLE_DEVICES=0 swift eval \
     --model Qwen/Qwen2.5-7B-Instruct \
     --infer_backend lmdeploy \
     --eval_backend OpenCompass \
@@ -464,7 +464,7 @@ CUDA_VISIBLE_DEVICES=0 swift eval \
 
 ### 量化
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift export \
+MUSA_VISIBLE_DEVICES=0 swift export \
     --model Qwen/Qwen2.5-7B-Instruct \
     --quant_bits 4 --quant_method awq \
     --dataset AI-ModelScope/alpaca-gpt4-data-zh \

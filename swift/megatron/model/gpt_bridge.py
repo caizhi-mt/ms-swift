@@ -304,7 +304,7 @@ class GPTBridge:
             if self.pp_size > 1:
                 src_rank = torch.tensor([0 if hf_state_dict is None else self.pp_rank],
                                         dtype=torch.int64,
-                                        device='cuda')
+                                        device='musa')
                 dist.all_reduce(src_rank, group=self.pp_group)
                 src_rank = dist.get_global_rank(self.pp_group, src_rank.item())
                 meta_data = [None] if hf_state_dict is None else [list(hf_state_dict.keys())]
@@ -324,7 +324,7 @@ class GPTBridge:
             return self._add_prefix(hf_state_dict, hf_prefix)
 
     def _all_gather_tp(self, tensor, tp_dim, is_expert):
-        tensor = None if tensor is None else tensor.to('cuda')
+        tensor = None if tensor is None else tensor.to('musa')
         tp_size = self.etp_size if is_expert else self.tp_size
         tp_group = self.etp_group if is_expert else self.tp_group
         if tensor is not None and tp_dim is not None and tp_size > 1:
@@ -356,10 +356,10 @@ class GPTBridge:
         pp_rank = self.ep_pp_rank if is_expert else self.pp_rank
         # pp/ep
         if pp_size > 1:
-            src_rank = torch.tensor([0 if tensor is None else pp_rank], dtype=torch.int64, device='cuda')
+            src_rank = torch.tensor([0 if tensor is None else pp_rank], dtype=torch.int64, device='musa')
             dist.all_reduce(src_rank, group=pp_group)
             src_rank = dist.get_global_rank(pp_group, src_rank.item())
-            meta_data = torch.zeros(10, dtype=torch.int64, device='cuda')
+            meta_data = torch.zeros(10, dtype=torch.int64, device='musa')
             dtype_mapping = {torch.float64: 0, torch.float32: 1, torch.float16: 2, torch.bfloat16: 3, torch.uint8: 4}
             dtype_mapping_r = {v: k for k, v in dtype_mapping.items()}
             if tensor is None:
@@ -367,11 +367,11 @@ class GPTBridge:
                 assert meta_data[0].item() > 0, f'meta_data: {meta_data}'
                 shape = meta_data[1:1 + meta_data[0]].tolist()
                 dtype = dtype_mapping_r[meta_data[-1].item()]
-                tensor = torch.empty(shape, device='cuda', dtype=dtype)
+                tensor = torch.empty(shape, device='musa', dtype=dtype)
                 dist.broadcast(tensor, src=src_rank, group=pp_group)
             else:
                 meta_data[0] = tensor.ndim
-                meta_data[1:1 + tensor.ndim] = torch.tensor(tensor.shape, dtype=torch.int64, device='cuda')
+                meta_data[1:1 + tensor.ndim] = torch.tensor(tensor.shape, dtype=torch.int64, device='musa')
                 meta_data[-1] = dtype_mapping[tensor.dtype]
                 dist.broadcast(meta_data, src=src_rank, group=pp_group)
                 dist.broadcast(tensor, src=src_rank, group=pp_group)
@@ -458,7 +458,7 @@ class GPTBridge:
         is_lora = isinstance(sub_module, LoraParallelLinear)
         is_modules_to_save = isinstance(sub_module, ModulesToSaveWrapper)
         if not to_mcore:
-            state = torch.tensor([is_lora, is_modules_to_save], dtype=torch.bool, device='cuda')
+            state = torch.tensor([is_lora, is_modules_to_save], dtype=torch.bool, device='musa')
             if is_expert and self.ep_pp_size > 1:
                 dist.all_reduce(state, group=self.ep_pp_group)
             elif not is_expert and self.pp_size > 1:
@@ -592,7 +592,7 @@ class GPTBridge:
             kv_block = kv_dim // self.fp8_block_size
             is_lora = False if mg_attn is None else isinstance(mg_attn.linear_qkv,
                                                                LoraParallelLinear) and self._is_peft_format
-            is_lora = torch.tensor([is_lora], dtype=torch.bool, device='cuda')
+            is_lora = torch.tensor([is_lora], dtype=torch.bool, device='musa')
             if self.pp_size > 1:
                 dist.all_reduce(is_lora, group=self.pp_group)
             if is_lora:
@@ -959,7 +959,7 @@ class GPTBridge:
         else:
             is_lora = False if mg_mlp is None else isinstance(mg_mlp.linear_fc1,
                                                               LoraParallelLinear) and self._is_peft_format
-            is_lora = torch.tensor([is_lora], dtype=torch.bool, device='cuda')
+            is_lora = torch.tensor([is_lora], dtype=torch.bool, device='musa')
             if is_expert and self.ep_pp_size > 1:
                 dist.all_reduce(is_lora, group=self.ep_pp_group)
             elif not is_expert and self.pp_size > 1:
@@ -1187,7 +1187,7 @@ class GPTBridge:
             else:
                 is_lora = False if mg_mlp is None else isinstance(mg_mlp.linear_fc2,
                                                                   LoraParallelLinear) and self._is_peft_format
-                is_lora = torch.tensor([is_lora], dtype=torch.bool, device='cuda')
+                is_lora = torch.tensor([is_lora], dtype=torch.bool, device='musa')
                 if is_expert and self.ep_pp_size > 1:
                     dist.all_reduce(is_lora, group=self.ep_pp_group)
                 elif not is_expert and self.pp_size > 1:
@@ -1338,7 +1338,7 @@ class GPTBridge:
             a_block = a_dim // self.fp8_block_size
             is_lora = False if mg_attn is None else isinstance(mg_attn.in_proj,
                                                                LoraParallelLinear) and self._is_peft_format
-            is_lora = torch.tensor([is_lora], dtype=torch.bool, device='cuda')
+            is_lora = torch.tensor([is_lora], dtype=torch.bool, device='musa')
             if self.pp_size > 1:
                 dist.all_reduce(is_lora, group=self.pp_group)
             if is_lora:
@@ -1582,7 +1582,7 @@ class GPTBridge:
                 else:
                     mg_layer = None
             if not to_mcore and self.pp_size > 1:
-                has_model = torch.tensor([mg_layer is not None], dtype=torch.bool, device='cuda')
+                has_model = torch.tensor([mg_layer is not None], dtype=torch.bool, device='musa')
                 dist.all_reduce(has_model, group=self.pp_group)
                 if not has_model:
                     mg_model = next(mg_models)  # compat vpp
@@ -1698,7 +1698,7 @@ class GPTBridge:
         Args:
             mg_models: List of Megatron model instances to export.
                 Note: If is_peft_format is True, you also need to pass in a GPTModel, not a PeftModel.
-            target_device: Target device for exported tensors (e.g., 'cpu'). Defaults to None (current device, cuda).
+            target_device: Target device for exported tensors (e.g., 'cpu'). Defaults to None (current device, musa).
             only_master_rank: Whether to export only on the last rank in distributed settings. Defaults to False.
             is_peft_format: Whether to export in PEFT (LoRA, etc.) format. Defaults to False.
                 - If True, exports only LoRA delta weights. If False, exports the complete model weights

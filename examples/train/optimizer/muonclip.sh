@@ -1,5 +1,5 @@
 nproc_per_node=1 \
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 MASTER_PORT=29501 \
 NPROC_PER_NODE=$nproc_per_node
 swift sft \

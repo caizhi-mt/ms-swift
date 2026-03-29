@@ -13,10 +13,10 @@ This section demonstrates fine-tuning the Qwen2.5-VL-7B-Instruct model on the La
 The full-parameter training script is as follows:
 ```shell
 # 2 * 72GiB; 4.1s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen2.5-VL-7B-Instruct \
     --save_safetensors true \
@@ -55,10 +55,10 @@ megatron sft \
 The LoRA training script is as follows:
 ```shell
 # 2 * 23GiB; 2.3s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen2.5-VL-7B-Instruct \
     --save_safetensors true \
@@ -99,7 +99,7 @@ megatron sft \
 Finally, we use the generated Hugging Face format weights to perform inference on the validation set:
 ```shell
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters megatron_output/Qwen2.5-VL-7B-Instruct/vx-xxx/checkpoint-xxx \
     --attn_impl flash_attn \
@@ -129,9 +129,9 @@ The inference results are as follows:
 Training script:
 ```bash
 # 2 * 43GiB, 8s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model OpenGVLab/InternVL3_5-30B-A3B \
     --save_safetensors true \
@@ -177,7 +177,7 @@ megatron sft \
 
 After training is completed, we use the generated Hugging Face format weights to perform inference on the validation set:
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters megatron_output/InternVL3_5-30B-A3B/vx-xxx/checkpoint-xxx \
     --attn_impl flash_attn \

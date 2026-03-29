@@ -1,7 +1,7 @@
 # 2 * 50GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
     --save_safetensors true \
@@ -43,7 +43,7 @@ megatron sft \
     --sequence_parallel true \
     --attention_backend flash
 
-# CUDA_VISIBLE_DEVICES=0,1 \
+# MUSA_VISIBLE_DEVICES=0,1 \
 # swift infer \
 #     --adapters megatron_output/Qwen3-30B-A3B-Instruct-2507/vx-xxx/checkpoint-xxx \
 #     --load_data_args true \

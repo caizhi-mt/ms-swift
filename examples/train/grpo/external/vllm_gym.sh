@@ -1,6 +1,6 @@
 # exp: https://github.com/modelscope/ms-swift/pull/4890
 
-# CUDA_VISIBLE_DEVICES=7 \
+# MUSA_VISIBLE_DEVICES=7 \
 # swift rollout \
 #   --model Qwen/Qwen2.5-3B-Instruct \
 #   --max_turns 3\
@@ -8,7 +8,7 @@
 #   --use_gym_env true \
 #   --gym_env math_env
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5 \
 NPROC_PER_NODE=6 \
 swift rlhf \
     --rlhf_type grpo \

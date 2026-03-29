@@ -1,5 +1,5 @@
 # 1*5G
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model iic/gte-reranker-modernbert-base \
     --task_type reranker \

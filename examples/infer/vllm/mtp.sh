@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift infer \
     --model Qwen/Qwen3-Next-80B-A3B-Instruct \
     --vllm_tensor_parallel_size 4 \

@@ -6,7 +6,7 @@
 # --- Rollout Section ---
 # For rollout, you can launch any number of servers on different nodes
 # Start rollout server on node1:
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift rollout \
     --model Qwen/Qwen2.5-7B-Instruct \
     --vllm_tensor_parallel_size 2 \
@@ -14,7 +14,7 @@ swift rollout \
     --port <node1_port>
 
 # Start rollout server on node2:
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift rollout \
     --model Qwen/Qwen2.5-7B-Instruct \
     --vllm_tensor_parallel_size 2 \
@@ -27,7 +27,7 @@ NNODES=2 \
 NODE_RANK=0 \
 MASTER_ADDR=127.0.0.1 \
 MASTER_PORT=29500 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 swift rlhf \
     --rlhf_type grpo \
@@ -57,7 +57,7 @@ NNODES=2 \
 NODE_RANK=1 \
 MASTER_ADDR=<node3_ip> \
 MASTER_PORT=29500 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 swift rlhf \
     --rlhf_type grpo \

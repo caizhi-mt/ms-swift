@@ -118,7 +118,7 @@ Since the task is simple, we set `max_completion_length` to 1024 and selected `e
 
 launch external vLLM server using following script
 ```bash
-CUDA_VISIBLE_DEVICES=6,7 \
+MUSA_VISIBLE_DEVICES=6,7 \
 swift rollout \
     --model Qwen/Qwen2.5-VL-3B-Instruct \
     --vllm_data_parallel_size 2
@@ -126,7 +126,7 @@ swift rollout \
 
 ```shell
 WANDB_API_KEY=your_wandb_api_key \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5 \
 NPROC_PER_NODE=6 \
 swift rlhf \
     --rlhf_type grpo \
@@ -204,7 +204,7 @@ The selected model and most hyperparameters are similar to the previous experime
 
 ```shell
 WANDB_API_KEY=your_wandb_api_key \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5 \
 MAX_PIXELS=401408 \
 NPROC_PER_NODE=6 \
 swift rlhf \
@@ -293,7 +293,7 @@ The selected model and most hyperparameters are similar to the previous experime
 
 ```shell
 WANDB_API_KEY=your_wandb_api_key \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5 \
 MAX_PIXELS=262144 \
 MASTER_PORT=29600 \
 NPROC_PER_NODE=6 \

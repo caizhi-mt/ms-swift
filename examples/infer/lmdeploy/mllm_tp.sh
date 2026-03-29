@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 swift infer \
     --model OpenGVLab/InternVL2_5-1B \
     --infer_backend lmdeploy \

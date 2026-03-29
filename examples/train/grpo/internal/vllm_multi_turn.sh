@@ -1,7 +1,7 @@
 # It's recommended to use server mode for multi-turn training
 # Colocate multi-turn does not support rollouts with dynamic rollout outputs
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
 swift rlhf \
     --rlhf_type grpo \

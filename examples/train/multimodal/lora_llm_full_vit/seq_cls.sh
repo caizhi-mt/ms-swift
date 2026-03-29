@@ -1,7 +1,7 @@
 # lora_llm_full_vit: 23GiB
 # lora: 21.6GiB
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 MAX_PIXELS=1003520 \
 swift sft \
     --model Qwen/Qwen2.5-VL-7B-Instruct \

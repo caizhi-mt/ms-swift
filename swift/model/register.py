@@ -532,7 +532,7 @@ def get_model_processor(
         model_id_or_path: The model identifier from a hub (HuggingFace/ModelScope) or local path.
         torch_dtype: Data type for model parameters. If None, uses the dtype from config.json.
         device_map: Device mapping strategy for model loading. If None, uses default device map.
-            Can be a string (e.g., 'auto', 'cuda:0') or a dictionary mapping layers to devices.
+            Can be a string (e.g., 'auto', 'musa:0') or a dictionary mapping layers to devices.
         load_model: Whether to load the model weights. If False, only returns the processor.
 
         # Hub parameters

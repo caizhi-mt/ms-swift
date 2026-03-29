@@ -4,7 +4,7 @@ MAX_PIXELS=1003520 \
 NPROC_PER_NODE=2 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 swift sft \
     --model Qwen/Qwen3-Omni-30B-A3B-Instruct \
     --dataset 'AI-ModelScope/alpaca-gpt4-data-zh#10000' \

@@ -1,8 +1,8 @@
 # 2 * 80GiB
 # For inference code, refer to: examples/infer/demo_embedding.py
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 INFONCE_TEMPERATURE=0.1 \
 megatron sft \
     --model Qwen/Qwen3-VL-Embedding-8B \

@@ -845,7 +845,7 @@ class BaseMegatronTrainer(ABC):
             else:
                 raise ValueError(f'Invalid value shape: {val[0].shape} for key {key}')
             if key not in total_metrics:
-                total_metrics[key] = torch.tensor([0.0, 0.0], dtype=torch.float32, device=torch.cuda.current_device())
+                total_metrics[key] = torch.tensor([0.0, 0.0], dtype=torch.float32, device=torch.musa.current_device())
             total_metrics[key] += val
 
     def _prepare_dataloader(self, train_dataset, val_dataset=None):

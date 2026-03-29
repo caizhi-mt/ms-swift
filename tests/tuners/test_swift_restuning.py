@@ -29,8 +29,8 @@ class TestSwiftResTuning(unittest.TestCase):
         random.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
+        torch.musa.manual_seed(seed)
+        torch.musa.manual_seed_all(seed)
 
     def model_comparison(self, model, model2):
         model_key = list(model.state_dict().keys())

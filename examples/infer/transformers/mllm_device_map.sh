@@ -1,5 +1,5 @@
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 MAX_PIXELS=1003520 \
 swift infer \
     --model Qwen/Qwen2.5-VL-3B-Instruct \

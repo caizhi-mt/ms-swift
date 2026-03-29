@@ -7,7 +7,7 @@ from swift.model import get_processor
 from swift.template import get_template
 from swift.utils import get_logger, seed_everything
 
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+# os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 os.environ['SWIFT_DEBUG'] = '1'
 
 logger = get_logger()
@@ -35,7 +35,7 @@ def _infer_model(engine, system=None, messages=None):
 
 class TestTemplate(unittest.TestCase):
 
-    @unittest.skipIf(not torch.cuda.is_available(), reason='GPTQ is only available on GPU')
+    @unittest.skipIf(not torch.musa.is_available(), reason='GPTQ is only available on GPU')
     def test_template(self):
         engine = TransformersEngine('Qwen/Qwen2.5-3B-Instruct-GPTQ-Int4')
         response = _infer_model(engine)

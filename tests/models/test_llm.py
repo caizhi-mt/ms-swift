@@ -1,6 +1,6 @@
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0,1'
 
 
 def test_llama3():

@@ -28,7 +28,7 @@ def get_batch_on_this_pp_rank(args, data, vp_stage=None):
         data['labels'] = torch.roll(data['labels'], -1, dims=-1)
         if 'loss_scale' in data:
             data['loss_scale'] = torch.roll(data['loss_scale'], -1, dims=-1)
-    batch = to_device(data, 'cuda', non_blocking=True)
+    batch = to_device(data, 'musa', non_blocking=True)
     if args.pipeline_model_parallel_size == 1:
         return batch
     if mcore_013:
@@ -126,7 +126,7 @@ def load_megatron_model_to_gpu(models, load_grad=True):
 
                     if buffer.param_data.storage().size() == 0:
                         buffer.param_data.storage().resize_(buffer.param_data_size)
-                        # copy data from cpu to cuda
+                        # copy data from cpu to musa
                         buffer.param_data.copy_(buffer.param_data.cpu_data, non_blocking=True)
         else:
             # we need this for ref module
@@ -302,8 +302,8 @@ def offload_megatron_optimizer(optimizers):
 
 
 def log_gpu_memory(prefix: str = '', info_once: bool = False):
-    log_msg = (f'{prefix} GPU memory: {torch.cuda.memory_allocated() / 1024**3:.2f}GB allocated, '
-               f'{torch.cuda.memory_reserved() / 1024**3:.2f}GB reserved')
+    log_msg = (f'{prefix} GPU memory: {torch.musa.memory_allocated() / 1024**3:.2f}GB allocated, '
+               f'{torch.musa.memory_reserved() / 1024**3:.2f}GB reserved')
     if info_once:
         logger.info_once(log_msg, hash_id=prefix)
     else:

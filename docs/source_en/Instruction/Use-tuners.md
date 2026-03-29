@@ -118,5 +118,5 @@ Below is a list of interfaces that users may call. Other internal or less recomm
   - Parameters: None.
   - Return Value: Information about trainable parameters in the following format:
     ```text
-    trainable params: 100M || all params: 1000M || trainable%: 10.00% || cuda memory: 10GiB.
+    trainable params: 100M || all params: 1000M || trainable%: 10.00% || musa memory: 10GiB.
     ```

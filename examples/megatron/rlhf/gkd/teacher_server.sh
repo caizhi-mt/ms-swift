@@ -1,9 +1,9 @@
 # Teacher server must be running first:
-#   CUDA_VISIBLE_DEVICES=0 vllm serve Qwen/Qwen2.5-7B-Instruct --port 8000 --max-logprobs 64
+#   MUSA_VISIBLE_DEVICES=0 vllm serve Qwen/Qwen2.5-7B-Instruct --port 8000 --max-logprobs 64
 
-CUDA_VISIBLE_DEVICES=1,2 \
+MUSA_VISIBLE_DEVICES=1,2 \
 NPROC_PER_NODE=2 \
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 megatron rlhf \
     --rlhf_type gkd \
     --model Qwen/Qwen2.5-0.5B \

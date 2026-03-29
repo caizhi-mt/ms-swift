@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift export \
     --model Qwen/Qwen2.5-1.5B-Instruct \
     --quant_method bnb \

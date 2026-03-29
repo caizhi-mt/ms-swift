@@ -589,8 +589,8 @@ Train using command line:
 
 ```shell
 # 4 * 35GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -636,8 +636,8 @@ swift sft \
 Perform inference on the validation set after training: (Environment variables should align with training)
 
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
 MAX_PIXELS=1003520 \

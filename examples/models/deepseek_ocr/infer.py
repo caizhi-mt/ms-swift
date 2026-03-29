@@ -1,7 +1,7 @@
 # pip install "transformers==4.46.3" easydict
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 # os.environ['SWIFT_DEBUG'] = '1'
 
 if __name__ == '__main__':

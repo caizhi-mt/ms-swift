@@ -13,10 +13,10 @@ ms-swift引入了Megatron的并行技术来加速多模态大模型的训练。�
 全参数训练脚本如下：
 ```shell
 # 2 * 72GiB; 4.1s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen2.5-VL-7B-Instruct \
     --save_safetensors true \
@@ -55,10 +55,10 @@ megatron sft \
 LoRA训练脚本如下：
 ```shell
 # 2 * 23GiB; 2.3s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen2.5-VL-7B-Instruct \
     --save_safetensors true \
@@ -100,7 +100,7 @@ megatron sft \
 最后，我们使用生成的HF格式权重对验证集进行推理：
 ```shell
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters megatron_output/Qwen2.5-VL-7B-Instruct/vx-xxx/checkpoint-xxx \
     --attn_impl flash_attn \
@@ -132,9 +132,9 @@ swift infer \
 训练脚本：
 ```bash
 # 2 * 43GiB, 8s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model OpenGVLab/InternVL3_5-30B-A3B \
     --save_safetensors true \
@@ -180,7 +180,7 @@ megatron sft \
 
 训练结束后，我们使用生成的HF格式权重对验证集进行推理：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters megatron_output/InternVL3_5-30B-A3B/vx-xxx/checkpoint-xxx \
     --attn_impl flash_attn \

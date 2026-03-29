@@ -40,7 +40,7 @@ pip install -U "transformers>=5.3.0"
 ```python
 import os
 # os.environ['SWIFT_DEBUG'] = '1'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 os.environ['IMAGE_MAX_TOKEN_NUM'] = '1024'
 os.environ['VIDEO_MAX_TOKEN_NUM'] = '128'
 os.environ['FPS_MAX_FRAMES'] = '16'
@@ -76,7 +76,7 @@ print()
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model Qwen/Qwen3.5-4B \
     --enable_thinking false \
@@ -111,12 +111,12 @@ Qwen3.5的bbox输出采用归一化1000的相对坐标。你可以使用 ms-swif
 
 ```shell
 # 4 * 20GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model Qwen/Qwen3.5-4B \
     --tuner_type lora \
@@ -155,8 +155,8 @@ swift sft \
 训练结束后，使用以下脚本对验证集进行推理：
 
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -190,7 +190,7 @@ e = \sum _ { k = 0 } ^ { \infty } \frac { 1 } { k ! }
 ```python
 import os
 # os.environ['SWIFT_DEBUG'] = '1'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 os.environ['IMAGE_MAX_TOKEN_NUM'] = '1024'
 os.environ['VIDEO_MAX_TOKEN_NUM'] = '128'
 os.environ['FPS_MAX_FRAMES'] = '16'
@@ -234,9 +234,9 @@ Qwen3.5-35B-A3B Megatron训练，环境的准备请参考[Megatron-SWIFT快速�
 
 ```shell
 # 4 * 40GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -293,8 +293,8 @@ megatron sft \
 训练结束后，使用以下脚本对验证集进行推理：
 
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -327,7 +327,7 @@ Megatron-SWIFT训练Qwen3.5的提示：
 ```shell
 SYSTEM_PROMPT="""You are a helpful math assistant. Solve the problem step by step and put your final answer within \\boxed{}."""
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 swift rlhf \
     --rlhf_type grpo \
@@ -373,7 +373,7 @@ swift rlhf \
 使用以下指令进行评测：
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift eval \
+MUSA_VISIBLE_DEVICES=0 swift eval \
     --model output/Qwen3.5-2B/vxx-xxx-xxx/checkpoint-xx \
     --enable_thinking false \
     --eval_dataset gsm8k \
@@ -399,9 +399,9 @@ CUDA_VISIBLE_DEVICES=0 swift eval \
 ```shell
 SYSTEM_PROMPT="""You are a helpful math assistant. Solve the problem step by step and put your final answer within \\boxed{}."""
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 megatron rlhf \
     --rlhf_type grpo \
     --model Qwen/Qwen3.5-35B-A3B \
@@ -464,7 +464,7 @@ megatron rlhf \
 使用以下指令在 AIME-2025 和 MATH-500 上评测：
 
 ```shell
-CUDA_VISIBLE_DEVICES=0,1 swift eval \
+MUSA_VISIBLE_DEVICES=0,1 swift eval \
     --model <checkpoint-merged-path> \
     --enable_thinking false \
     --eval_dataset aime25 math_500 \
@@ -489,7 +489,7 @@ CUDA_VISIBLE_DEVICES=0,1 swift eval \
 使用 GKD 进行 LoRA 训练，以 Qwen3.5-9B 作为 teacher 模型。首先使用 vLLM 拉起 teacher server（也可以通过 `--teacher_model` 参数直接加载模型）：
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 vllm serve Qwen/Qwen3.5-9B \
     --port 8000 \
     --tensor-parallel-size 1 \
@@ -502,7 +502,7 @@ vllm serve Qwen/Qwen3.5-9B \
 
 ```shell
 NPROC_PER_NODE=3 \
-CUDA_VISIBLE_DEVICES=1,2,3 \
+MUSA_VISIBLE_DEVICES=1,2,3 \
 swift rlhf \
     --rlhf_type gkd \
     --model Qwen/Qwen3.5-2B \
@@ -540,7 +540,7 @@ swift rlhf \
 使用以下指令进行评测：
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift eval \
+MUSA_VISIBLE_DEVICES=0 swift eval \
     --model Qwen/Qwen3.5-2B \
     --adapters output/Qwen3.5-2B/vxx-xxx-xxx/checkpoint-xx \
     --merge_lora true \

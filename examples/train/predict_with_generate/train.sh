@@ -1,5 +1,5 @@
 # 20GiB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 MAX_PIXELS=1003520 \
 swift sft \
     --model Qwen/Qwen2.5-VL-7B-Instruct \

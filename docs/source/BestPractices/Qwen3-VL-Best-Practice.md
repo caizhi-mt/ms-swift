@@ -18,7 +18,7 @@ pip install "ms-swift>=4.0"
 使用 transformers 推理：
 ```python
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 from modelscope import snapshot_download
 from qwen_vl_utils import process_vision_info
 from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
@@ -57,7 +57,7 @@ if video_inputs is not None:
 else:
     video_metadatas = None
 inputs = processor(text=[text], images=image_inputs, videos=video_inputs, video_metadata=video_metadatas, **video_kwargs, do_resize=False, return_tensors="pt")
-inputs = inputs.to('cuda')
+inputs = inputs.to('musa')
 
 generated_ids = model.generate(**inputs, max_new_tokens=128, do_sample=False)
 generated_ids_trimmed = [
@@ -74,7 +74,7 @@ print(output_text[0])
 ```python
 import os
 # os.environ['SWIFT_DEBUG'] = '1'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 os.environ['VIDEO_MAX_TOKEN_NUM'] = '128'
 os.environ['FPS_MAX_FRAMES'] = '16'
 
@@ -102,7 +102,7 @@ print()
 
 使用命令行推理：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
@@ -178,12 +178,12 @@ Qwen3-VL的bbox输出采用归一化1000的相对坐标。你可以使用 ms-swi
 
 ```shell
 # 2 * 21GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 swift sft \
     --model Qwen/Qwen3-VL-4B-Instruct \
     --dataset 'AI-ModelScope/alpaca-gpt4-data-zh#10000' \
@@ -222,8 +222,8 @@ swift sft \
 
 训练结束后，我们使用以下脚本对验证集进行推理：
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0 \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
@@ -258,10 +258,10 @@ swift infer \
 微调脚本如下，训练技巧与并行技术的调整参考[Megatron-SWIFT文档](../Megatron-SWIFT/Quick-start.md#训练技巧)。
 ```shell
 # 8 * 80GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 OMP_NUM_THREADS=14 \
 NPROC_PER_NODE=8 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
@@ -306,8 +306,8 @@ megatron sft \
 
 训练结束后，我们使用以下脚本对验证集进行推理：
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0 \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \

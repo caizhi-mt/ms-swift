@@ -3,7 +3,7 @@
 # The first model weights will be saved around step 70.
 NPROC_PER_NODE=4 \
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 HF_ENDPOINT=https://hf-mirror.com \
 swift sft \
     --model Qwen/Qwen2.5-VL-7B-Instruct \

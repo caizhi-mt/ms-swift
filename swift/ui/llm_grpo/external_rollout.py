@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 from functools import partial
 from json import JSONDecodeError
-from transformers.utils import is_torch_cuda_available, is_torch_npu_available
+from transformers.utils import is_torch_musa_available, is_torch_npu_available
 from typing import Type
 
 from swift.arguments import RolloutArguments
@@ -211,17 +211,17 @@ class LLMRollout(BaseUI):
         devices = [d for d in devices if d]
         assert (len(devices) == 1 or 'cpu' not in devices)
         gpus = ','.join(devices)
-        cuda_param = ''
+        musa_param = ''
         all_envs = {}
         if gpus != 'cpu':
             if is_torch_npu_available():
-                cuda_param = f'ASCEND_RT_VISIBLE_DEVICES={gpus}'
+                musa_param = f'ASCEND_RT_VISIBLE_DEVICES={gpus}'
                 all_envs['ASCEND_RT_VISIBLE_DEVICES'] = gpus
-            elif is_torch_cuda_available():
-                cuda_param = f'CUDA_VISIBLE_DEVICES={gpus}'
-                all_envs['CUDA_VISIBLE_DEVICES'] = gpus
+            elif is_torch_musa_available():
+                musa_param = f'MUSA_VISIBLE_DEVICES={gpus}'
+                all_envs['MUSA_VISIBLE_DEVICES'] = gpus
             else:
-                cuda_param = ''
+                musa_param = ''
         output_dir = 'rollout_output'
         now = datetime.now()
         time_str = f'{now.year}{now.month}{now.day}{now.hour}{now.minute}{now.second}'
@@ -235,11 +235,11 @@ class LLMRollout(BaseUI):
         params += '--ignore_args_error true '
         command.extend(['--ignore_args_error', 'true'])
         if sys.platform == 'win32':
-            if cuda_param:
-                cuda_param = f'set {cuda_param} && '
-            run_command = f'{cuda_param}start /b swift rollout {params} > {log_file} 2>&1'
+            if musa_param:
+                musa_param = f'set {musa_param} && '
+            run_command = f'{musa_param}start /b swift rollout {params} > {log_file} 2>&1'
         else:
-            run_command = f'{cuda_param} nohup swift rollout {params} > {log_file} 2>&1 &'
+            run_command = f'{musa_param} nohup swift rollout {params} > {log_file} 2>&1 &'
         return command, all_envs, run_command, rollout_args, log_file
 
     @classmethod

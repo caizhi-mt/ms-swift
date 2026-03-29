@@ -1,7 +1,7 @@
 # 2 * 43GiB, 8s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model OpenGVLab/InternVL3_5-30B-A3B \
     --save_safetensors true \

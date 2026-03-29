@@ -18,10 +18,10 @@ docker run  -it --net=host --uts=host --ipc=host --privileged=true --group-add v
 ```
 ## 2. Environment check
 ### 2.1. Check Metax available
-Thanks to its compatibility with CUDA, we can use the same approach as NVIDIA to check the availability of Metax devices.
+Thanks to its compatibility with MUSA, we can use the same approach as NVIDIA to check the availability of Metax devices.
 ```python
 import torch
-print(torch.cuda.is_available())
+print(torch.musa.is_available())
 # True
 ```
 ### 2.2. Check the P2P connections
@@ -171,10 +171,10 @@ pip list |grep torch
 
 ```python
 import torch
-torch.cuda.is_available()
+torch.musa.is_available()
 ```
 
-### 3.4. Differences between Metax and NVIDIA CUDA
+### 3.4. Differences between Metax and NVIDIA MUSA
 We are largely aligned with NVIDIA, but there are some differences in certain software and environment variables.
 
 #### 3.4.1. MACA_MPS_MODE

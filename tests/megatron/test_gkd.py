@@ -1,6 +1,6 @@
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0,1'
 
 if __name__ == '__main__':
     from swift.megatron import MegatronRLHFArguments, megatron_rlhf_main

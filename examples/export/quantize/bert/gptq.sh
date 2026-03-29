@@ -1,5 +1,5 @@
 # merge-lora
-CUDA_VISIBLE_DEVICES=0 swift export \
+MUSA_VISIBLE_DEVICES=0 swift export \
     --adapters swift/test_bert \
     --output_dir output/swift_test_bert_merged \
     --merge_lora true
@@ -12,7 +12,7 @@ if [ $EXIT_CODE -ne 0 ]; then
 fi
 
 # gptq quantize
-CUDA_VISIBLE_DEVICES=0 swift export \
+MUSA_VISIBLE_DEVICES=0 swift export \
     --model output/swift_test_bert_merged \
     --load_data_args true \
     --output_dir output/swift_test_bert_gptq_int4 \
@@ -29,5 +29,5 @@ if [ $EXIT_CODE -ne 0 ]; then
 fi
 
 # infer
-CUDA_VISIBLE_DEVICES=0 swift infer \
+MUSA_VISIBLE_DEVICES=0 swift infer \
     --model output/swift_test_bert_gptq_int4

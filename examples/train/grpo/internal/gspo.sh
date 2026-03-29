@@ -6,7 +6,7 @@
 # - steps_per_generation = 4 from paper serction 5.1 (each batch of rollout data is partitioned into four minibatches for gradient updates)
 # - beta = 0: zero kl regularization https://github.com/volcengine/verl/pull/2775#issuecomment-3131807306
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
 swift rlhf \
     --rlhf_type grpo \

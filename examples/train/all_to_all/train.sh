@@ -1,7 +1,7 @@
 # 70 GiB * 2
 nproc_per_node=2
 NPROC_PER_NODE=$nproc_per_node \
-CUDA_VISIBLE_DEVICES=0,2 \
+MUSA_VISIBLE_DEVICES=0,2 \
 max_position_embeddings=10240 \
 image_area=518400 \
 swift sft \

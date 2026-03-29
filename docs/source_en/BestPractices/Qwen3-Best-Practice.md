@@ -8,7 +8,7 @@ Qwen Documentation: [https://qwen.readthedocs.io/en/latest/training/ms_swift.htm
 Thinking mode:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model Qwen/Qwen3-8B \
     --infer_backend vllm \
@@ -38,7 +38,7 @@ Non-thinking mode:
 - `--response_prefix` indicates that the model's output will continue after the prefix. It is equivalent to setting enable_thinking to False.
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model Qwen/Qwen3-8B \
     --infer_backend vllm \
@@ -118,7 +118,7 @@ You can use the following command to obtain a distilled reasoning dataset. Durin
 ```shell
 # 4 * 80GiB
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift infer \
     --model Qwen/Qwen3-32B \
     --infer_backend vllm \
@@ -143,7 +143,7 @@ For explanations of the parameters used in the training script, please refer to 
 
 ```bash
 # GPU Memory Usage: 22GB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen3-8B \
     --tuner_type lora \
@@ -174,7 +174,7 @@ swift sft \
 After fine-tuning, you can test the results using the following script. Note that the `--adapters` part should be modified to point to the final saved checkpoint directory:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --stream true \
@@ -221,7 +221,7 @@ If you want to perform training on multiple GPUs, the following example provides
 # Note: If you specify `--packing true`, you must also set `--attn_impl flash_attn`
 
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model Qwen/Qwen3-8B \
     --tuner_type full \
@@ -291,7 +291,7 @@ During training, we utilize vLLM to accelerate the sampling process.
 
 ```bash
 # 70G*8
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
 swift rlhf \
     --rlhf_type grpo \
@@ -340,7 +340,7 @@ We will use Alibaba Cloud DLC to launch training. The training environment consi
 
 ```bash
 # https://help.aliyun.com/zh/pai/user-guide/general-environment-variables
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NNODES=$WORLD_SIZE \
 NODE_RANK=$RANK \
 megatron sft \

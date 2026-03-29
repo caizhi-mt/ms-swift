@@ -1,7 +1,7 @@
 # Reinforce++-Baseline in https://arxiv.org/abs/2501.03262
 
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 MASTER_PORT=29900 \
 NPROC_PER_NODE=8 \
 swift rlhf \

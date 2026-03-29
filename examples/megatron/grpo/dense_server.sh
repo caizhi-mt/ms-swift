@@ -1,5 +1,5 @@
 # MAX_PIXELS=602112 \
-# CUDA_VISIBLE_DEVICES=6,7 \
+# MUSA_VISIBLE_DEVICES=6,7 \
 # swift rollout \
 #     --model Qwen/Qwen2.5-VL-3B-Instruct \
 #     --vllm_data_parallel_size 2 \
@@ -14,7 +14,7 @@
 # num_of_prompt_to_rollout = generation_batch_size / num_generations (384 / 8 = 48)
 # num_of_prompt_to_train = generation_batch_size / num_generations (96 / 8 = 12)
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5 \
 NPROC_PER_NODE=6 \
 MAX_PIXELS=602112 \
 MASTER_PORT=29600 \

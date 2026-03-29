@@ -1,8 +1,8 @@
 # demo: thinking -> non-thinking
 # 4 * 70GiB; 40s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 megatron sft \
     --model ZhipuAI/GLM-4.5-Air \
     --save_safetensors true \
@@ -46,7 +46,7 @@ megatron sft \
     --attention_backend flash
 
 # If not using the MTP module, please remove the speculative-related parameters.
-# CUDA_VISIBLE_DEVICES=0,1,2,3 \
+# MUSA_VISIBLE_DEVICES=0,1,2,3 \
 # swift infer \
 #     --model megatron_output/GLM-4.5-Air/vx-xxx/checkpoint-xxx-merged \
 #     --sglang_tp_size 4 \

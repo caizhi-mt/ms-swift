@@ -1,4 +1,4 @@
-# please use python=3.10/3.11, cuda12.*
+# please use python=3.10/3.11, musa12.*
 # sh requirements/install_all.sh
 pip install sglang -U
 pip install "vllm>=0.5.1" -U

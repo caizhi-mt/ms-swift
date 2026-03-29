@@ -1,6 +1,6 @@
 pip install "transformers<4.52"
 
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift export \
     --model Qwen/Qwen2.5-72B-Instruct \
     --dataset 'AI-ModelScope/alpaca-gpt4-data-zh#500' \

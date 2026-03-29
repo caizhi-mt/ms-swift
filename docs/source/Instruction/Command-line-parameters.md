@@ -25,7 +25,7 @@
   - 提示：如果你想在国外访问ModelScope，可以尝试使用[ModelScope国际版](https://modelscope.ai/home)，设置环境变量`MODELSCOPE_DOMAIN='www.modelscope.ai'`即可。
 - hub_token: hub token. modelscope的hub token可以查看[这里](https://modelscope.cn/my/myaccesstoken)。默认为None。
 - ddp_timeout: 默认为18000000，单位为秒。
-- ddp_backend: 可选为"nccl"、"gloo"、"mpi"、"ccl"、"hccl"、"cncl"、"mccl"。默认为None，进行自动选择。
+- ddp_backend: 可选为"mccl"、"gloo"、"mpi"、"ccl"、"hccl"、"cncl"、"mccl"。默认为None，进行自动选择。
 - ignore_args_error: 用于兼容jupyter notebook。默认为False。
 
 ### 模型参数
@@ -407,7 +407,7 @@ Vera使用`target_modules`、`target_regex`、`modules_to_save`三个参数，�
 - vllm_max_num_seqs: 单次迭代中处理的最大序列数，默认为`256`。
 - 🔥vllm_max_model_len: 模型支持的最大长度。默认为`None`，即从config.json中读取。
 - vllm_disable_custom_all_reduce: 禁用自定义的 all-reduce 内核，回退到 NCCL。为了稳定性，默认为`True`。
-- vllm_enforce_eager: vllm使用pytorch eager模式还是建立cuda graph，默认为`False`。设置为True可以节约显存，但会影响效率。
+- vllm_enforce_eager: vllm使用pytorch eager模式还是建立musa graph，默认为`False`。设置为True可以节约显存，但会影响效率。
 - vllm_mm_processor_cache_gb: 多模态处理器缓存大小（GiB），用于缓存已处理的多模态输入（如图像、视频）避免重复处理。默认为`4`。设置为`0`可禁用缓存但会降低性能（不推荐）。仅对多模态模型生效。
 - vllm_speculative_config: 推测解码配置，传入json字符串。默认为None。
 - vllm_disable_cascade_attn: 是否强制关闭V1引擎的cascade attention实现以防止潜在数值误差，默认为False，由vLLM内部逻辑决定是否使用。
@@ -429,9 +429,9 @@ Vera使用`target_modules`、`target_regex`、`modules_to_save`三个参数，�
 - sglang_enable_ep_moe: 是否启用ep moe。默认为False。该参数已在最新sglang中移除。
 - sglang_mem_fraction_static: 用于静态分配模型权重和KV缓存内存池的GPU内存比例。如果你遇到GPU内存不足错误，可以尝试降低该值。默认为None。
 - sglang_context_length: 模型的最大上下文长度。默认为 None，将使用模型的`config.json`中的值。
-- sglang_disable_cuda_graph: 禁用CUDA图。默认为False。
+- sglang_disable_musa_graph: 禁用MUSA图。默认为False。
 - sglang_quantization: 量化方法。默认为None。
-- sglang_kv_cache_dtype: 用于k/v缓存存储的数据类型。'auto'表示将使用模型的数据类型。'fp8_e5m2'和'fp8_e4m3'适用于CUDA 11.8及以上版本。默认为'auto'。
+- sglang_kv_cache_dtype: 用于k/v缓存存储的数据类型。'auto'表示将使用模型的数据类型。'fp8_e5m2'和'fp8_e4m3'适用于MUSA 11.8及以上版本。默认为'auto'。
 - sglang_enable_dp_attention: 为注意力机制启用数据并行，为前馈网络（FFN）启用张量并行。数据并行的规模（dp size）应等于张量并行的规模（tp size）。目前支持DeepSeek-V2/3以及Qwen2/3 MoE模型。默认为False。
 - sglang_disable_custom_all_reduce: 禁用自定义的 all-reduce 内核，回退到 NCCL。为了稳定性，默认为True。
 - sglang_speculative_algorithm: 推测算法，可选值：None、"EAGLE"、"EAGLE3"、"NEXTN"、"STANDALONE"、"NGRAM"。默认为None。
@@ -483,7 +483,7 @@ Vera使用`target_modules`、`target_regex`、`modules_to_save`三个参数，�
 - eval_dataset_args: 评测数据集参数，json格式，可设置多个数据集的参数。
 - eval_limit: 评测数据集采样数。
 - eval_generation_config: 评测时模型推理配置，json格式，默认为`{'max_tokens': 512}`。
-- use_flash_ckpt: 是否启用[DLRover Flash Checkpoint](https://github.com/intelligent-machine-learning/dlrover)的flash checkpoint。默认为`false`，启用后，权重会先保存至共享内存，之后异步持久化；建议搭配`PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"` 一起使用，避免训练过程CUDA OOM。
+- use_flash_ckpt: 是否启用[DLRover Flash Checkpoint](https://github.com/intelligent-machine-learning/dlrover)的flash checkpoint。默认为`false`，启用后，权重会先保存至共享内存，之后异步持久化；建议搭配`PYTORCH_MUSA_ALLOC_CONF="expandable_segments:True"` 一起使用，避免训练过程MUSA OOM。
 
 #### SWANLAB
 
@@ -878,10 +878,10 @@ qwen2_5_omni除了包含qwen2_5_vl和qwen2_audio的模型特定参数外，还�
 
 
 ## 其他环境变量
-- CUDA_VISIBLE_DEVICES: 控制使用哪些GPU卡。默认使用所有卡。
+- MUSA_VISIBLE_DEVICES: 控制使用哪些GPU卡。默认使用所有卡。
 - ASCEND_RT_VISIBLE_DEVICES: 控制使用哪些NPU卡（只对ASCEND卡生效）。默认使用所有卡。
 - MODELSCOPE_CACHE: 控制缓存路径。（多机训练时建议设置该值，以确保不同节点使用相同的数据集缓存）
-- PYTORCH_CUDA_ALLOC_CONF: 推荐设置为`'expandable_segments:True'`，这将减少GPU内存碎片，具体请参考[torch文档](https://docs.pytorch.org/docs/stable/notes/cuda.html#cuda-memory-management)。
+- PYTORCH_MUSA_ALLOC_CONF: 推荐设置为`'expandable_segments:True'`，这将减少GPU内存碎片，具体请参考[torch文档](https://docs.pytorch.org/docs/stable/notes/musa.html#musa-memory-management)。
 - NPROC_PER_NODE: torchrun中`--nproc_per_node`的参数透传。默认为1。若设置了`NPROC_PER_NODE`或者`NNODES`环境变量，则使用torchrun启动训练或推理。
 - MASTER_PORT: torchrun中`--master_port`的参数透传。默认为29500。
 - MASTER_ADDR: torchrun中`--master_addr`的参数透传。

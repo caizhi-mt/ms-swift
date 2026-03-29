@@ -239,7 +239,7 @@ class Qwen3VLTransformerBlock(gpt_model.TransformerBlock):
                 return te_checkpoint(
                     forward_func,
                     self.config.distribute_saved_activations,
-                    tensor_parallel.random.get_cuda_rng_tracker,
+                    tensor_parallel.random.get_musa_rng_tracker,
                     parallel_state.get_tensor_model_parallel_group(),
                     hidden_states,
                     attention_mask,
@@ -371,7 +371,7 @@ class Qwen3VLTransformerBlock(gpt_model.TransformerBlock):
         hidden_states = make_viewless_tensor(inp=hidden_states, requires_grad=True, keep_graph=True)
 
         if self.config.sequence_parallel:
-            rng_context = tensor_parallel.get_cuda_rng_tracker().fork()
+            rng_context = tensor_parallel.get_musa_rng_tracker().fork()
         else:
             rng_context = nullcontext()
 

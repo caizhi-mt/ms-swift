@@ -1,6 +1,6 @@
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+os.environ['MUSA_VISIBLE_DEVICES'] = '3'
 
 infer_backend = 'transformers'
 

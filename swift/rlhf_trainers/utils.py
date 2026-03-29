@@ -392,7 +392,7 @@ def prepare_deepspeed(model, accelerator, deepspeed_config=None, deepspeed_plugi
 def memory_time_profiling_context(
     name: str = 'Operation',
     enable_profiling: bool = True,
-    sync_cuda: bool = True,
+    sync_musa: bool = True,
     reset_peak_stats: bool = True,
 ):
     """
@@ -404,7 +404,7 @@ def memory_time_profiling_context(
     Args:
         name: Operation name for logging identification
         enable_profiling: Whether to enable profiling records
-        sync_cuda: Whether to synchronize CUDA before recording (ensures accuracy with slight overhead)
+        sync_musa: Whether to synchronize MUSA before recording (ensures accuracy with slight overhead)
         reset_peak_stats: Whether to reset peak memory statistics on exit
     """
     if not enable_profiling:
@@ -414,15 +414,15 @@ def memory_time_profiling_context(
     logger = get_logger()
 
     # ===== Entry phase: Record initial state =====
-    if sync_cuda:
+    if sync_musa:
         synchronize()
 
     gc_collect()
 
     # Record initial memory state
-    memory_before = torch.cuda.memory_allocated() / 1024**3  # GiB
-    memory_reserved_before = torch.cuda.memory_reserved() / 1024**3
-    max_memory_before = torch.cuda.max_memory_allocated() / 1024**3
+    memory_before = torch.musa.memory_allocated() / 1024**3  # GiB
+    memory_reserved_before = torch.musa.memory_reserved() / 1024**3
+    max_memory_before = torch.musa.max_memory_allocated() / 1024**3
 
     logger.info(f'[{name}] Before: '
                 f'Allocated = {memory_before:.2f} GiB, '
@@ -435,7 +435,7 @@ def memory_time_profiling_context(
     yield
 
     # Synchronize and clean up memory before measuring (important for offload operations)
-    if sync_cuda:
+    if sync_musa:
         synchronize()
     gc_collect()
 
@@ -444,9 +444,9 @@ def memory_time_profiling_context(
     elapsed_time = time.perf_counter() - start_time
 
     # Record final memory state
-    memory_after = torch.cuda.memory_allocated() / 1024**3
-    memory_reserved_after = torch.cuda.memory_reserved() / 1024**3
-    peak_memory = torch.cuda.max_memory_allocated() / 1024**3
+    memory_after = torch.musa.memory_allocated() / 1024**3
+    memory_reserved_after = torch.musa.memory_reserved() / 1024**3
+    peak_memory = torch.musa.max_memory_allocated() / 1024**3
     memory_change = memory_after - memory_before
 
     logger.info(f'[{name}] After: '
@@ -457,8 +457,8 @@ def memory_time_profiling_context(
                 f'Time = {elapsed_time:.2f}s')
 
     # Reset peak memory statistics for next cycle
-    if reset_peak_stats and torch.cuda.is_available():
-        torch.cuda.reset_peak_memory_stats()
+    if reset_peak_stats and torch.musa.is_available():
+        torch.musa.reset_peak_memory_stats()
 
 
 def round_robin(num_reqs, num_workers):
@@ -1350,16 +1350,16 @@ def compute_chord_loss(trainer, grpo_loss: torch.Tensor) -> torch.Tensor:
     return loss
 
 
-_EXPANDABLE_SEGMENTS_SET = 'expandable_segments' in os.environ.get('PYTORCH_CUDA_ALLOC_CONF', '')
+_EXPANDABLE_SEGMENTS_SET = 'expandable_segments' in os.environ.get('PYTORCH_MUSA_ALLOC_CONF', '')
 
 
 def set_expandable_segments(enable: bool) -> None:
     """
-    Enable or disable expandable segments for CUDA memory allocation.
+    Enable or disable expandable segments for MUSA memory allocation.
 
-    This function provides a safe way to configure CUDA expandable segments without
+    This function provides a safe way to configure MUSA expandable segments without
     overriding user preferences. It only takes effect when the user has previously
-    set the PYTORCH_CUDA_ALLOC_CONF environment variable, ensuring that explicit
+    set the PYTORCH_MUSA_ALLOC_CONF environment variable, ensuring that explicit
     user configurations are respected.
 
     Expandable segments allow PyTorch to grow memory pools dynamically, which can
@@ -1368,24 +1368,24 @@ def set_expandable_segments(enable: bool) -> None:
 
     Args:
         enable (bool): Whether to enable expandable segments. When True, allows
-            CUDA memory pools to expand dynamically to reduce fragmentation and
+            MUSA memory pools to expand dynamically to reduce fragmentation and
             mitigate OOM issues.
 
     Note:
-        - Only takes effect if PYTORCH_CUDA_ALLOC_CONF was previously set by the user
-        - Requires CUDA to be available
+        - Only takes effect if PYTORCH_MUSA_ALLOC_CONF was previously set by the user
+        - Requires MUSA to be available
         - Changes apply to both the PyTorch allocator settings and environment variable
 
     Example:
-        >>> # Only works if user has already set PYTORCH_CUDA_ALLOC_CONF
+        >>> # Only works if user has already set PYTORCH_MUSA_ALLOC_CONF
         >>> set_expandable_segments(True)  # Enable to help with OOM issues
         >>> set_expandable_segments(False) # Disable for more predictable memory usage
     """
     if not _EXPANDABLE_SEGMENTS_SET:
         return
-    if torch.cuda.is_available():
-        torch.cuda.memory._set_allocator_settings(f'expandable_segments:{enable}')
-        os.environ['PYTORCH_CUDA_ALLOC_CONF'] = f'expandable_segments:{enable}'
+    if torch.musa.is_available():
+        torch.musa.memory._set_allocator_settings(f'expandable_segments:{enable}')
+        os.environ['PYTORCH_MUSA_ALLOC_CONF'] = f'expandable_segments:{enable}'
 
 
 def peft_config_to_dict(peft_config):

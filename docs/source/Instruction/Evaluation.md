@@ -71,7 +71,7 @@ pip install -e '.[eval]'
 **基本示例**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift eval \
     --model Qwen/Qwen2.5-0.5B-Instruct \
     --eval_backend Native \
@@ -89,7 +89,7 @@ swift eval \
 **复杂评测示例**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift eval \
     --model Qwen/Qwen2.5-0.5B-Instruct \
     --eval_backend Native \
@@ -110,7 +110,7 @@ SWIFT支持在训练过程中使用EvalScope对当前的模型进行评测，以
 **基本示例**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
   --model "Qwen/Qwen2.5-0.5B-Instruct" \
   --tuner_type "lora" \
@@ -185,7 +185,7 @@ id,question,A,B,C,D,answer
 运行下面的命令：
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift eval \
     --model Qwen/Qwen2.5-0.5B-Instruct \
     --eval_backend Native \
@@ -234,7 +234,7 @@ qa/
 运行下面的命令：
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift eval \
     --model Qwen/Qwen2.5-0.5B-Instruct \
     --eval_backend Native \

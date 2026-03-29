@@ -1,10 +1,10 @@
 # 2 * 21GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 swift sft \
     --model Qwen/Qwen3-VL-4B-Instruct \
     --dataset 'AI-ModelScope/alpaca-gpt4-data-zh#10000' \

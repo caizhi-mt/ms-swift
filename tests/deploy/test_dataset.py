@@ -23,7 +23,7 @@ def _test_client(port=8000):
 
 def _test(infer_backend):
     import os
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
     from swift.arguments import DeployArguments
     from swift.pipelines import run_deploy

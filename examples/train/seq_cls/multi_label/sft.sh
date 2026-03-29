@@ -1,5 +1,5 @@
 # Custom dataset format reference: https://swift.readthedocs.io/en/latest/Customization/Custom-dataset.html
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen2.5-0.5B \
     --tuner_type lora \

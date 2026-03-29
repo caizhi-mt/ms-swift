@@ -22,12 +22,12 @@ Below is an example of training the multimodal model Qwen3-VL:
 
 ```shell
 # 2 * 76GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen3-VL-8B-Instruct \
     --save_safetensors true \
@@ -63,11 +63,11 @@ megatron sft \
 Then we perform inference on the validation set:
 
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model megatron_output/Qwen3-VL-8B-Instruct/vx-xxx/checkpoint-xxx \
     --load_data_args true \
@@ -80,8 +80,8 @@ Below is an example of CoT training for the text-only model Qwen3-Moe:
 
 ```shell
 # 8 * 76GiB, 3s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
 megatron sft \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -125,7 +125,7 @@ megatron sft \
 Perform inference on the trained weights:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model megatron_output/Qwen3-30B-A3B-Instruct-2507/vx-xxx/checkpoint-xxx \
     --stream true \
@@ -144,9 +144,9 @@ Below is an example of self-cognition training using LoRA for the text-only mode
 
 ```shell
 # 50GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
     --save_safetensors true \
@@ -193,7 +193,7 @@ megatron sft \
 Perform inference on the exported LoRA weights:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
     --adapters megatron_output/Qwen3-30B-A3B-Instruct-2507/vx-xxx/checkpoint-xxx \
@@ -211,7 +211,7 @@ Full parameter weights:
 
 ```shell
 # safetensors -> torch_dist
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -225,7 +225,7 @@ megatron export \
 
 ```shell
 # torch_dist -> safetensors
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --mcore_model Qwen3-30B-A3B-Instruct-2507-mcore \
@@ -243,7 +243,7 @@ LoRA weights:
 # torch_dist -> safetensors
 # If you need to perform merge-lora and test precision alignment after merge-lora, simply set `--merge_lora true`
 # You can also change `--model safetensors-path` to `--mcore_model torch-dist-path`. These two methods are equivalent, and mcore-bridge will handle it automatically.
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -259,7 +259,7 @@ megatron export \
 
 ```shell
 # safetensors -> torch_dist
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -276,7 +276,7 @@ megatron export \
 Merge-LoRA:
 ```shell
 # torch_dist -> torch_dist
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -292,7 +292,7 @@ megatron export \
 
 ## Using Code
 
-You need to create the following file (test.py), then run `CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 test.py`. Below is sample code for loading, exporting, and saving weights using Mcore-Bridge.
+You need to create the following file (test.py), then run `MUSA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 test.py`. Below is sample code for loading, exporting, and saving weights using Mcore-Bridge.
 
 ```python
 import torch
@@ -322,7 +322,7 @@ bridge.save_weights(mg_models, 'output/Qwen3-4B-Instruct-2507-new')
 Inference with the newly generated weights:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model output/Qwen3-4B-Instruct-2507-new \
     --model_type qwen3 \
@@ -330,7 +330,7 @@ swift infer \
     --stream true
 ```
 
-Loading, exporting, and saving LoRA weights follows the same pattern. Run `CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc_per_node=4 test.py`
+Loading, exporting, and saving LoRA weights follows the same pattern. Run `MUSA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc_per_node=4 test.py`
 
 ```python
 import torch
@@ -368,7 +368,7 @@ bridge.save_weights(mg_models, 'output/Qwen3-30B-A3B-Instruct-2507-lora', is_pef
 Inference with the newly generated weights:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
     --adapters output/Qwen3-30B-A3B-Instruct-2507-lora \

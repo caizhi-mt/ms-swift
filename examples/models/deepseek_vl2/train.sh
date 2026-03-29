@@ -2,7 +2,7 @@
 pip install "transformers==4.41.*" "peft==0.11.*"
 # pip uninstall autoawq
 
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model deepseek-ai/deepseek-vl2-tiny \
     --dataset 'AI-ModelScope/LaTeX_OCR:human_handwrite#20000' \

@@ -1,7 +1,7 @@
 # 2 * 90GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model ZhipuAI/GLM-4.6V-Flash \
     --save_safetensors true \
@@ -33,8 +33,8 @@ megatron sft \
     --no_save_rng true \
     --dataset_num_proc 8
 
-# PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-# CUDA_VISIBLE_DEVICES=0 \
+# PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift infer \
 #     --model megatron_output/GLM-4.6V-Flash/vx-xxx/checkpoint-xxx \
 #     --load_data_args true \

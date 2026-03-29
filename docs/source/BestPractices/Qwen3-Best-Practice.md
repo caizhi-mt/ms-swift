@@ -8,7 +8,7 @@ Qwen文档: [https://qwen.readthedocs.io/en/latest/training/ms_swift.html](https
 
 思考模式：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model Qwen/Qwen3-8B \
     --infer_backend vllm \
@@ -36,7 +36,7 @@ I am Qwen, a large language model developed by Alibaba Cloud. I can assist with 
 非思考模式：
 - 其中`--response_prefix`代表模型的输出会在其前缀后继续生成。等价于enable_thinking设置为False。
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model Qwen/Qwen3-8B \
     --infer_backend vllm \
@@ -114,7 +114,7 @@ pip install flash-attn --no-build-isolation  # packing需要
 ```shell
 # 4 * 80GiB
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift infer \
     --model Qwen/Qwen3-32B \
     --infer_backend vllm \
@@ -139,7 +139,7 @@ swift infer \
 
 ```bash
 # 显存占用：22GB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen3-8B \
     --tuner_type lora \
@@ -170,7 +170,7 @@ swift sft \
 微调完成后，可以使用以下脚本来测试微调结果。注意，`--adapters` 部分需要修改为最后保存检查点的目录路径：
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --stream true \
@@ -218,7 +218,7 @@ swift export \
 # 注意：如果你指定了`--packing true`, 你必须额外设置`--attn_impl flash_attn`
 
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model Qwen/Qwen3-8B \
     --tuner_type full \
@@ -287,7 +287,7 @@ pip install vllm==0.8.5.post1
 
 ```bash
 # 70G*8
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
 swift rlhf \
     --rlhf_type grpo \
@@ -336,7 +336,7 @@ ms-swift 引入了 Megatron 并行技术以加速大模型的CPT/SFT/DPO/GRPO。
 
 ```bash
 # https://help.aliyun.com/zh/pai/user-guide/general-environment-variables
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NNODES=$WORLD_SIZE \
 NODE_RANK=$RANK \
 megatron sft \

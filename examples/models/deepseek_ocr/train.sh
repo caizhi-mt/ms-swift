@@ -1,7 +1,7 @@
 # 24GiB
 pip install "transformers==4.46.3" easydict "peft==0.15.2"
 
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model deepseek-ai/DeepSeek-OCR \
     --dataset 'AI-ModelScope/LaTeX_OCR:human_handwrite#20000' \

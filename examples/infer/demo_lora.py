@@ -1,7 +1,7 @@
 import os
 from typing import Literal
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 
 def infer_multilora(infer_request: 'InferRequest', infer_backend: Literal['vllm', 'transformers']):

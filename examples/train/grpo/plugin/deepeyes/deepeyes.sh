@@ -2,14 +2,14 @@
 # docs: https://swift.readthedocs.io/en/latest/Instruction/GRPO/AdvancedResearch/deepeyes.html
 
 # First: Deploy Qwen2.5-VL-72B-Instruct for verify
-# CUDA_VISIBLE_DEVICES=4,5,6,7 \
+# MUSA_VISIBLE_DEVICES=4,5,6,7 \
 # swift deploy \
 #     --model Qwen/Qwen2.5-VL-72B-Instruct \
 #     --vllm_tensor_parallel_size 4
 
 # Second: Run swift rollout to deploy rollout server
 # MAX_PIXELS=602112 \
-# CUDA_VISIBLE_DEVICES=3 \
+# MUSA_VISIBLE_DEVICES=3 \
 # swift rollout \
 #     --model Qwen/Qwen2.5-VL-7B-Instruct \
 #     --vllm_use_async_engine true \
@@ -21,7 +21,7 @@
 
 # Third: Run swift rlhf to train GRPO model
 MAX_PIXELS=602112 \
-CUDA_VISIBLE_DEVICES=0,1,2 \
+MUSA_VISIBLE_DEVICES=0,1,2 \
 NPROC_PER_NODE=3 \
 swift rlhf \
     --rlhf_type grpo \

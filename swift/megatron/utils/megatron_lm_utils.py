@@ -87,7 +87,7 @@ def set_random_seed(
     data_parallel_random_init: bool = False,
     te_rng_tracker: bool = False,
     inference_rng_tracker: bool = False,
-    use_cudagraphable_rng: bool = False,
+    use_musagraphable_rng: bool = False,
 ):
     """Set random seed for reproducability."""
     if seed_ is not None and seed_ > 0:
@@ -97,9 +97,9 @@ def set_random_seed(
         if data_parallel_random_init:
             seed = seed + (11 * mpu.get_data_parallel_rank())
         seed_everything(seed)
-        if torch.cuda.device_count() > 0:
+        if torch.musa.device_count() > 0:
             tensor_parallel.model_parallel_cuda_manual_seed(seed, te_rng_tracker, inference_rng_tracker,
-                                                            use_cudagraphable_rng)
+                                                            use_musagraphable_rng)
     else:
         raise ValueError('Seed ({}) should be a positive integer.'.format(seed_))
 
@@ -115,7 +115,7 @@ def initialize_megatron(args):
     # Setup MoE aux loss scale value.
     if args.model_info.is_moe_model:
         from megatron.core.transformer.moe.router import MoEAuxLossAutoScaler
-        MoEAuxLossAutoScaler.set_loss_scale(torch.ones(1, device=torch.cuda.current_device()))
+        MoEAuxLossAutoScaler.set_loss_scale(torch.ones(1, device=torch.musa.current_device()))
 
 
 def _get_rng_state():
@@ -124,8 +124,8 @@ def _get_rng_state():
         'random_rng_state': random.getstate(),
         'np_rng_state': np.random.get_state(),
         'torch_rng_state': torch.get_rng_state(),
-        'cuda_rng_state': torch.cuda.get_rng_state(),
-        'rng_tracker_states': tensor_parallel.get_cuda_rng_tracker().get_states()
+        'musa_rng_state': torch.musa.get_rng_state(),
+        'rng_tracker_states': tensor_parallel.get_musa_rng_tracker().get_states()
     }
 
     # data_parallel_random_init False
@@ -369,9 +369,9 @@ def _load_iteration(tracker_path: str):
         iteration = int(f.read())
     # Get the max iteration retrieved across the ranks.
     if torch.distributed.is_initialized():
-        iters_cuda = torch.tensor([iteration], dtype=torch.long, device='cuda')
-        torch.distributed.all_reduce(iters_cuda, op=torch.distributed.ReduceOp.MAX)
-        iteration = iters_cuda[0].item()
+        iters_musa = torch.tensor([iteration], dtype=torch.long, device='musa')
+        torch.distributed.all_reduce(iters_musa, op=torch.distributed.ReduceOp.MAX)
+        iteration = iters_musa[0].item()
     return iteration
 
 
@@ -484,8 +484,8 @@ def load_mcore_checkpoint(args,
             random.setstate(rng_state['random_rng_state'])
             np.random.set_state(rng_state['np_rng_state'])
             torch.set_rng_state(rng_state['torch_rng_state'])
-            torch.cuda.set_rng_state(rng_state['cuda_rng_state'])
-            tensor_parallel.get_cuda_rng_tracker().set_states(rng_state['rng_tracker_states'])
+            torch.musa.set_rng_state(rng_state['musa_rng_state'])
+            tensor_parallel.get_musa_rng_tracker().set_states(rng_state['rng_tracker_states'])
     if torch.distributed.is_initialized():
         torch.distributed.barrier()
 
@@ -502,7 +502,7 @@ def wrap_model(args, models, wrap_with_ddp: bool = True):
         for param in m.parameters():
             tensor_parallel.set_defaults_if_not_set_tensor_model_parallel_attributes(param)
         if not args.use_cpu_initialization:
-            m.cuda(torch.cuda.current_device())
+            m.musa(torch.musa.current_device())
     # Fp16
     config = models[0].config
     if args.fp16 or args.bf16:
@@ -529,7 +529,7 @@ def wrap_model(args, models, wrap_with_ddp: bool = True):
     if not ddp_config.overlap_grad_reduce:
         ddp_config.bucket_size = None
 
-    with torch.cuda.stream(torch.cuda.Stream()):
+    with torch.musa.stream(torch.musa.Stream()):
         models = [
             DDP(
                 config=config,
@@ -662,7 +662,7 @@ def warmup_jit_function(config, args):
     else:
         dtype = torch.float32
 
-    bias = torch.rand(config.ffn_hidden_size // config.tensor_model_parallel_size, dtype=dtype, device='cuda')
+    bias = torch.rand(config.ffn_hidden_size // config.tensor_model_parallel_size, dtype=dtype, device='musa')
     input_tensor = torch.rand(
         (
             args.seq_length // config.context_parallel_size,
@@ -670,7 +670,7 @@ def warmup_jit_function(config, args):
             config.ffn_hidden_size // config.tensor_model_parallel_size,
         ),
         dtype=dtype,
-        device='cuda',
+        device='musa',
     )
     # Warmup JIT fusions with the input_tensor grad_enable state of both forward
     # prop and recomputation
@@ -691,14 +691,14 @@ def warmup_jit_function(config, args):
     input_tensor = torch.rand(
         (seq_length // config.context_parallel_size, args.micro_batch_size, config.hidden_size),
         dtype=dtype,
-        device='cuda',
+        device='musa',
     )
     residual = torch.rand(
         (seq_length // config.context_parallel_size, args.micro_batch_size, config.hidden_size),
         dtype=dtype,
-        device='cuda',
+        device='musa',
     )
-    bias = torch.rand((config.hidden_size), dtype=dtype, device='cuda').expand_as(residual)
+    bias = torch.rand((config.hidden_size), dtype=dtype, device='musa').expand_as(residual)
     dropout_rate = 0.1
     # Warmup JIT fusions with the input_tensor grad_enable state of both forward
     # prop and recomputation
@@ -709,4 +709,4 @@ def warmup_jit_function(config, args):
         for _ in range(5):
             output = bias_dropout_add_fused_train([input_tensor, bias], residual, dropout_rate)
     del bias, input_tensor, residual, output
-    torch.cuda.empty_cache()
+    torch.musa.empty_cache()

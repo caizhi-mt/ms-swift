@@ -1,7 +1,7 @@
 # Copyright (c) ModelScope Contributors. All rights reserved.
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 # os.environ['SWIFT_DEBUG'] = '1'
 
 

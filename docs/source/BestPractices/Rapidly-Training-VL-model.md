@@ -51,7 +51,7 @@ from accelerate import Accelerator
 # 加载原始 VL 模型和 Qwen3-8B 模型
 qwen2_5_vl_7b_model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
     "Qwen/Qwen2.5-VL-7B-Instruct",
-    device_map="cuda",
+    device_map="musa",
     torch_dtype=torch.bfloat16
 )
 device = qwen2_5_vl_7b_model.device
@@ -108,7 +108,7 @@ NNODES=$WORLD_SIZE \
 NODE_RANK=$RANK \
 NPROC_PER_NODE=8 \
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 swift sft \
     --model /path/to/new_vl_model \
     --model_type qwen2_5_vl \
@@ -145,7 +145,7 @@ NNODES=$WORLD_SIZE \
 NODE_RANK=$RANK \
 NPROC_PER_NODE=8 \
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 swift sft \
     --model /path/to/stage1_checkpoint \
     --model_type qwen2_5_vl \
@@ -188,7 +188,7 @@ swift infer \
 使用 vLLM 加速模型服务部署：
 
 ```
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \

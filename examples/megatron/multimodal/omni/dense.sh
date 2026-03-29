@@ -1,12 +1,12 @@
 # 2 * 75GiB; 7s/it
 # Supports mixed modalities
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 ENABLE_AUDIO_OUTPUT=0 \
 NPROC_PER_NODE=2 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen2.5-Omni-7B \
     --save_safetensors true \

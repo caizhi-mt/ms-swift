@@ -1,7 +1,7 @@
 # Env: 4 * A100
 # GPU Memory: 4 * 25GiB, Training Speed 14s/it
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift rlhf \
     --rlhf_type dpo \
     --model Qwen/Qwen2.5-VL-3B-Instruct \

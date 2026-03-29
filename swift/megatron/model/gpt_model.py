@@ -254,7 +254,7 @@ class GPTModel(McoreGPTModel):
                         packed_seq=packed_seq,
                     )
 
-        if (in_inference_mode and ((self.config.enable_cuda_graph and self.config.cuda_graph_scope != 'full_iteration')
+        if (in_inference_mode and ((self.config.enable_musa_graph and self.config.musa_graph_scope != 'full_iteration')
                                    or self.config.flash_decode) and rotary_pos_cos is not None
                 and inference_context.is_static_batching()):
             current_batch_size = input_ids.shape[0]

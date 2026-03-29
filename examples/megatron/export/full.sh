@@ -1,5 +1,5 @@
 # safetensors -> torch_dist
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -11,7 +11,7 @@ megatron export \
     --test_convert_precision true
 
 # torch_dist -> safetensors
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --mcore_model Qwen3-30B-A3B-Instruct-2507-mcore \

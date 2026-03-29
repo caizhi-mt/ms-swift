@@ -205,7 +205,7 @@ When `gkd_logits_topk` is set, you can use an external teacher model API service
 
 ```bash
 # Deploy teacher model with vllm serve
-CUDA_VISIBLE_DEVICES=0 vllm serve Qwen/Qwen2.5-14B-Instruct \
+MUSA_VISIBLE_DEVICES=0 vllm serve Qwen/Qwen2.5-14B-Instruct \
     --port 8000 \
     --max-logprobs 64 \
     --gpu-memory-utilization 0.9
@@ -260,7 +260,7 @@ For teacher model sampling (`seq_kd=True`), **pre-sampling** is recommended: fir
 export teacher_model='OpenGVLab/InternVL3-8B'
 
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift infer \
     --model $teacher_model \
     --infer_backend vllm \

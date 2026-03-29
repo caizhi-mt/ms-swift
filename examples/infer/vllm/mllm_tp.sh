@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 MAX_PIXELS=1003520 \
 swift infer \
     --model Qwen/Qwen2.5-VL-3B-Instruct \

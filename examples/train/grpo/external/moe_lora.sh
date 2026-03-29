@@ -1,12 +1,12 @@
 # 8*80G
 
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift rollout \
 #     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
 #     --vllm_max_model_len 16384 \
 #     --vllm_enable_prefix_caching true
 
-CUDA_VISIBLE_DEVICES=1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=1,2,3,4,5,6,7 \
 NPROC_PER_NODE=7 \
 swift rlhf \
     --rlhf_type grpo \

@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 swift app \
+MUSA_VISIBLE_DEVICES=0 swift app \
     --model Qwen/Qwen2.5-7B-Instruct \
     --stream true \
     --infer_backend vllm \

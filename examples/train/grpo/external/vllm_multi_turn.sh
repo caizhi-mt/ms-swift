@@ -7,7 +7,7 @@
 #       here we use the last turn data of each trajectory to compute accuracy reward
 #       see details in thinking_tips reward function
 
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift rollout \
 #     --model Qwen/Qwen3-1.7B \
 #     --vllm_use_async_engine true \
@@ -16,7 +16,7 @@
 #     --vllm_gpu_memory_utilization 0.8 \
 #     --max_turns 3
 
-CUDA_VISIBLE_DEVICES=1,2 \
+MUSA_VISIBLE_DEVICES=1,2 \
 NPROC_PER_NODE=2 \
 swift rlhf \
     --rlhf_type grpo \

@@ -1,7 +1,7 @@
 import os
 import torch
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0,1,2,3'
 os.environ['SWIFT_DEBUG'] = '1'
 
 
@@ -98,7 +98,7 @@ def test_qwen2_5_vl_batch_infer():
         return_tensors='pt',
         padding_side='left',
     )
-    inputs = inputs.to('cuda')
+    inputs = inputs.to('musa')
 
     # Batch Inference
     generated_ids = model.generate(**inputs, max_new_tokens=128, do_sample=False)
@@ -1020,7 +1020,7 @@ def test_llava_onevision1_5():
 
 
 def test_paddle_ocr():
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    os.environ['MUSA_VISIBLE_DEVICES'] = '0'
     engine = TransformersEngine('PaddlePaddle/PaddleOCR-VL')
     query = 'OCR:'
     messages = [{'role': 'user', 'content': query}]
@@ -1188,7 +1188,7 @@ def test_step3_vl():
 
 
 def test_paddle_ocr_1_5():
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    os.environ['MUSA_VISIBLE_DEVICES'] = '0'
     engine = TransformersEngine('PaddlePaddle/PaddleOCR-VL-1.5')
     query = 'OCR:'
     messages = [{'role': 'user', 'content': query}]

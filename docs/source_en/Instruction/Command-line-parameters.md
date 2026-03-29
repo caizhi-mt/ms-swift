@@ -26,7 +26,7 @@ The command-line arguments will be introduced in four categories: basic argument
   - Note: To access ModelScope internationally, you can use [ModelScope International](https://modelscope.ai/home) by setting the environment variable `MODELSCOPE_DOMAIN='www.modelscope.ai'`.
 - hub_token: Hub authentication token. For ModelScope, see [here](https://modelscope.cn/my/myaccesstoken). Default is `None`.
 - ddp_timeout: Default is 18000000, in seconds.
-- ddp_backend: Optional values are `"nccl"`, `"gloo"`, `"mpi"`, `"ccl"`, `"hccl"`, `"cncl"`, `"mccl"`. Default is `None`, which enables automatic selection.
+- ddp_backend: Optional values are `"mccl"`, `"gloo"`, `"mpi"`, `"ccl"`, `"hccl"`, `"cncl"`, `"mccl"`. Default is `None`, which enables automatic selection.
 - ignore_args_error: Used for compatibility with Jupyter Notebook. Default is `False`.
 
 ### Model Arguments
@@ -415,7 +415,7 @@ Parameter meanings can be found in the [vllm documentation](https://docs.vllm.ai
 - vllm_max_num_seqs: Maximum number of sequences to be processed in a single iteration. Default is `256`.
 - 🔥vllm_max_model_len: The maximum sequence length supported by the model. Default is `None`, meaning it will be read from `config.json`.
 - vllm_disable_custom_all_reduce: Disables the custom all-reduce kernel and falls back to NCCL. For stability, the default is `True`.
-- vllm_enforce_eager: Determines whether vllm uses PyTorch eager mode or constructs a CUDA graph, default is `False`. Setting it to True can save memory but may affect efficiency.
+- vllm_enforce_eager: Determines whether vllm uses PyTorch eager mode or constructs a MUSA graph, default is `False`. Setting it to True can save memory but may affect efficiency.
 - vllm_mm_processor_cache_gb: The size (in GiB) of the multimodal processor cache, used to store processed multimodal inputs (e.g., images, videos) to avoid redundant processing. Default is 4. Setting it to 0 disables the cache but may degrade performance (not recommended). This option takes effect only for multimodal models.
 - vllm_speculative_config: Speculative decoding configuration, passed as a JSON string. Default: None.
 - vllm_disable_cascade_attn: Whether to forcibly disable the V1 engine’s cascade-attention implementation to avoid potential numerical issues. Defaults to False; vLLM’s internal heuristics determine whether cascade attention is actually used.
@@ -437,9 +437,9 @@ Parameter meanings can be found in the [sglang documentation](https://docs.sglan
 - sglang_enable_ep_moe: Whether to enable EP MoE. Default is False. This parameter has been removed in the latest version of SGLang.
 - sglang_mem_fraction_static: The fraction of GPU memory used for static allocation (model weights and KV cache memory pool). If you encounter out-of-memory errors, try reducing this value. Default is None.
 - sglang_context_length: The maximum context length of the model. Default is None, which means it will use the value from the model's `config.json`.
-- sglang_disable_cuda_graph: Disables CUDA graph. Default is False.
+- sglang_disable_musa_graph: Disables MUSA graph. Default is False.
 - sglang_quantization: Quantization method. Default is None.
-- sglang_kv_cache_dtype: Data type for KV cache storage. 'auto' means it will use the model's data type. 'fp8_e5m2' and 'fp8_e4m3' are supported on CUDA 11.8 and above. Default is 'auto'.
+- sglang_kv_cache_dtype: Data type for KV cache storage. 'auto' means it will use the model's data type. 'fp8_e5m2' and 'fp8_e4m3' are supported on MUSA 11.8 and above. Default is 'auto'.
 - sglang_enable_dp_attention: Enables data parallelism for attention and tensor parallelism for FFN. The data parallelism size (dp size) should be equal to the tensor parallelism size (tp size). Currently supports DeepSeek-V2/3 and Qwen2/3 MoE models. Default is False.
 - sglang_disable_custom_all_reduce: Disables the custom all-reduce kernel and falls back to NCCL. For stability, the default is True.
 - sglang_speculative_algorithm: Speculative algorithm. Available options: None, "EAGLE", "EAGLE3", "NEXTN", "STANDALONE", "NGRAM". Default is None.
@@ -493,7 +493,7 @@ Training arguments include the [base arguments](#base-arguments), [Seq2SeqTraine
 - eval_dataset_args: Evaluation dataset parameters in JSON format, parameters for multiple datasets can be set
 - eval_limit: Number of samples from the evaluation dataset
 - eval_generation_config: Model inference configuration during evaluation, in JSON format, default is `{'max_tokens': 512}`
-- use_flash_ckpt: Whether to use [DLRover Flash Checkpoint](https://github.com/intelligent-machine-learning/dlrover). Default is `false`. If enabled, checkpoints are saved to memory synchronously, then persisted to storage asynchronously. It's recommended to use this with the environment variable `PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"` to avoid CUDA OOM.
+- use_flash_ckpt: Whether to use [DLRover Flash Checkpoint](https://github.com/intelligent-machine-learning/dlrover). Default is `false`. If enabled, checkpoints are saved to memory synchronously, then persisted to storage asynchronously. It's recommended to use this with the environment variable `PYTORCH_MUSA_ALLOC_CONF="expandable_segments:True"` to avoid MUSA OOM.
 
 #### SWANLAB
 
@@ -905,11 +905,11 @@ The meanings of the following parameters can be found in the example code [here]
 
 ## Other Environment Variables
 
-- CUDA_VISIBLE_DEVICES: Controls which GPU to use. By default, all GPUs are used.
+- MUSA_VISIBLE_DEVICES: Controls which GPU to use. By default, all GPUs are used.
 - ASCEND_RT_VISIBLE_DEVICES: Controls which NPU (effective for ASCEND cards) are used. By default, all NPUs are used.
 - MODELSCOPE_CACHE: Controls the cache path. (Recommended to set this value during multi-node training to ensure all nodes use the same dataset cache.)
 - NPROC_PER_NODE: Pass-through for the `--nproc_per_node` parameter in torchrun. The default is 1. If the `NPROC_PER_NODE` or `NNODES` environment variables are set, torchrun is used to start training or inference.
-- PYTORCH_CUDA_ALLOC_CONF: It is recommended to set it to `'expandable_segments:True'`, which reduces GPU memory fragmentation. For more details, please refer to the [PyTorch documentation](https://docs.pytorch.org/docs/stable/notes/cuda.html#cuda-memory-management).
+- PYTORCH_MUSA_ALLOC_CONF: It is recommended to set it to `'expandable_segments:True'`, which reduces GPU memory fragmentation. For more details, please refer to the [PyTorch documentation](https://docs.pytorch.org/docs/stable/notes/musa.html#musa-memory-management).
 - MASTER_PORT: Pass-through for the `--master_port` parameter in torchrun. The default is 29500.
 - MASTER_ADDR: Pass-through for the `--master_addr` parameter in torchrun.
 - NNODES: Pass-through for the `--nnodes` parameter in torchrun.

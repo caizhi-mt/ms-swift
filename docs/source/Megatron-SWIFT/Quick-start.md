@@ -32,7 +32,7 @@ pip install --no-build-isolation transformer_engine[pytorch] --no-cache-dir
 # 提示：Megatron-SWIFT可以在不含apex的环境下运行，额外设置`--gradient_accumulation_fusion false`即可。
 git clone https://github.com/NVIDIA/apex
 cd apex
-pip install -v --disable-pip-version-check --no-cache-dir --no-build-isolation --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext" ./
+pip install -v --disable-pip-version-check --no-cache-dir --no-build-isolation --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--musa_ext" ./
 
 # megatron-core
 pip install "megatron-core==0.15.*" -U
@@ -50,21 +50,21 @@ MAX_JOBS=8 pip install "flash-attn==2.8.3" --no-build-isolation
 
 或者你也可以使用镜像：（历史镜像查看[这里](../GetStarted/SWIFT-installation.md#镜像)）
 ```
-modelscope-registry.cn-hangzhou.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-cuda12.8.1-py311-torch2.10.0-vllm0.17.0-modelscope1.34.0-swift4.0.1
-modelscope-registry.cn-beijing.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-cuda12.8.1-py311-torch2.10.0-vllm0.17.0-modelscope1.34.0-swift4.0.1
-modelscope-registry.us-west-1.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-cuda12.8.1-py311-torch2.10.0-vllm0.17.0-modelscope1.34.0-swift4.0.1
+modelscope-registry.cn-hangzhou.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-musa12.8.1-py311-torch2.10.0-vllm0.17.0-modelscope1.34.0-swift4.0.1
+modelscope-registry.cn-beijing.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-musa12.8.1-py311-torch2.10.0-vllm0.17.0-modelscope1.34.0-swift4.0.1
+modelscope-registry.us-west-1.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-musa12.8.1-py311-torch2.10.0-vllm0.17.0-modelscope1.34.0-swift4.0.1
 
 # cu129 (fp8 training)
-modelscope-registry.cn-hangzhou.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-cuda12.9.1-py311-torch2.8.0-vllm0.11.0-modelscope1.32.0-swift3.11.3
-modelscope-registry.cn-beijing.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-cuda12.9.1-py311-torch2.8.0-vllm0.11.0-modelscope1.32.0-swift3.11.3
-modelscope-registry.us-west-1.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-cuda12.9.1-py311-torch2.8.0-vllm0.11.0-modelscope1.32.0-swift3.11.3
+modelscope-registry.cn-hangzhou.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-musa12.9.1-py311-torch2.8.0-vllm0.11.0-modelscope1.32.0-swift3.11.3
+modelscope-registry.cn-beijing.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-musa12.9.1-py311-torch2.8.0-vllm0.11.0-modelscope1.32.0-swift3.11.3
+modelscope-registry.us-west-1.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-musa12.9.1-py311-torch2.8.0-vllm0.11.0-modelscope1.32.0-swift3.11.3
 ```
 
 推荐运行环境：
 |              | 范围           | 推荐          | 备注                 |
 |--------------|--------------|-------------|--------------------|
 | python       | >=3.9        | 3.11/3.12        |                    |
-| cuda         |              | cuda12      |                    |
+| musa         |              | musa12      |                    |
 | torch        | >=2.0        | 2.8.0/2.10.0       |                    |
 | transformer_engine    | >=2.3       |   2.12.0    |                  |
 | apex |   |  0.1 | |
@@ -83,11 +83,11 @@ modelscope-registry.us-west-1.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu2
 ### 传统方式
 
 首先，我们需要将HF格式的权重转为Megatron格式：
-- 多卡权重转换：将`CUDA_VISIBLE_DEVICES=0`删除即可使用多卡权重转换。
+- 多卡权重转换：将`MUSA_VISIBLE_DEVICES=0`删除即可使用多卡权重转换。
 - 转换精度测试：`--test_convert_precision true`将测试转换精度。在MoE大型模型的转换时，该参数所需时间较长，且需要更多的内存消耗，可酌情去除。
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift export \
     --model Qwen/Qwen2.5-7B-Instruct \
     --to_mcore true \
@@ -99,9 +99,9 @@ swift export \
 然后，使用以下脚本进行训练，训练所需显存资源为2*80GiB：
 - 若使用多机训练，建议共享磁盘，并将`--save`指定为相同的路径。
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --mcore_model Qwen2.5-7B-Instruct-mcore \
     --save_safetensors false \
@@ -135,9 +135,9 @@ megatron sft \
 
 最后，将Megatron格式权重转为HF格式：
 - 注意：`--mcore_model`请指向`iter_xxx`的上级目录。默认会使用`latest_checkpointed_iteration.txt`中对应的checkpoint。
-- 若出现OOM，将`CUDA_VISIBLE_DEVICES=0`删除。若出现内存不足，请将`--test_convert_precision true`删除。
+- 若出现OOM，将`MUSA_VISIBLE_DEVICES=0`删除。若出现内存不足，请将`--test_convert_precision true`删除。
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift export \
     --mcore_model megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx \
     --to_hf true \
@@ -148,7 +148,7 @@ swift export \
 
 我们对生成的HF格式权重进行推理：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx-hf \
     --stream true \
@@ -169,9 +169,9 @@ Mcore-Bridge去除模型转换的繁琐过程。具体参考[Mcore-Bridge文档]
 
 训练脚本：
 ```bash
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen2.5-7B-Instruct \
     --save_safetensors true \
@@ -205,7 +205,7 @@ megatron sft \
 
 我们对生成的safetensors格式权重进行推理：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx \
     --stream true \

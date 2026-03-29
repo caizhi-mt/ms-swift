@@ -41,4 +41,4 @@ class TestSwift(unittest.TestCase):
             self.assertTrue(key in state_dict2)
             self.assertTrue(all(torch.isclose(state_dict[key], state_dict2[key]).flatten().detach().cpu()))
 
-        self.assertTrue(len(set(model.hf_device_map.values())) == torch.cuda.device_count())
+        self.assertTrue(len(set(model.hf_device_map.values())) == torch.musa.device_count())

@@ -1,6 +1,6 @@
 # 18GB
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift infer \
     --model Qwen/Qwen2.5-1.5B-Instruct \
     --infer_backend transformers \

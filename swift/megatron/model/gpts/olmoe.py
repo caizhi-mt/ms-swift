@@ -158,7 +158,7 @@ class OLMoEBridge(GPTBridge):
             kv_block = kv_dim // self.fp8_block_size
             is_lora = False if mg_attn is None else isinstance(mg_attn.linear_qkv,
                                                                LoraParallelLinear) and self._is_peft_format
-            is_lora = torch.tensor([is_lora], dtype=torch.bool, device='cuda')
+            is_lora = torch.tensor([is_lora], dtype=torch.bool, device='musa')
             if self.pp_size > 1:
                 dist.all_reduce(is_lora, group=self.pp_group)
             if is_lora:

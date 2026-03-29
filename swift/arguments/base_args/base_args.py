@@ -62,7 +62,7 @@ class BaseArguments(GenerationArguments, QuantizeArguments, DataArguments, Templ
             ModelScope is used. Default is False.
         hub_token (Optional[str]): The authentication token for ModelScope or Hugging Face Hub. Default is None.
         ddp_timeout (int): Timeout for DDP (Distributed Data Parallel) operations, in seconds. Default is 18000000.
-        ddp_backend (Optional[str]): The backend for DDP. Choices include "nccl", "gloo", "mpi", "ccl", "hccl",
+        ddp_backend (Optional[str]): The backend for DDP. Choices include "mccl", "gloo", "mpi", "ccl", "hccl",
             "cncl", "mccl". If None, it will be automatically selected. Default is None.
         ignore_args_error (bool): Whether to ignore argument errors. This is useful for compatibility with Jupyter
             notebooks. Default is False.

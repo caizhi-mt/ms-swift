@@ -17,7 +17,7 @@ Below, we introduce weight conversion using the `swift export` and `megatron exp
 ```shell
 # megatron export
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron export \
     --model Qwen/Qwen2.5-7B-Instruct \
     --tensor_model_parallel_size 2 \
@@ -27,7 +27,7 @@ megatron export \
     --test_convert_precision true
 
 # swift export
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift export \
 #     --model Qwen/Qwen2.5-7B-Instruct \
 #     --to_mcore true \
@@ -43,9 +43,9 @@ Training Script:
 ```bash
 # full: 2 * 70GiB 0.61s/it
 # lora: 2 * 14GiB 0.45s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --mcore_model Qwen2.5-7B-Instruct-mcore \
     --save_safetensors false \
@@ -87,7 +87,7 @@ megatron sft \
 ```bash
 # megatron export
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron export \
     --mcore_adapter megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx \
     --to_hf true \
@@ -98,7 +98,7 @@ megatron export \
     --test_convert_precision true
 
 # swift export
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift export \
 #     --mcore_adapter megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx \
 #     --to_hf true \
@@ -114,7 +114,7 @@ megatron export \
 
 ```shell
 # If using full weights, replace `--adapters` with `--model`
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx-hf \
     --stream true
@@ -128,7 +128,7 @@ If you only want to merge the LoRA weights without converting them to Hugging Fa
 ```shell
 # megatron export
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron export \
     --mcore_adapter megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx \
     --tensor_model_parallel_size 2 \
@@ -139,7 +139,7 @@ megatron export \
     --test_convert_precision true
 
 # swift export
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift export \
 #     --mcore_adapter megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx \
 #     --to_mcore true \
@@ -156,9 +156,9 @@ megatron export \
 ```shell
 # full: 2 * 70GiB 0.61s/it
 # lora: 2 * 14GiB 0.45s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen2.5-7B-Instruct \
     --save_safetensors true \
@@ -200,7 +200,7 @@ megatron sft \
 
 ```shell
 # If using full weights, replace `--adapters` with `--model`
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx-hf \
     --stream true

@@ -1,6 +1,6 @@
 # 4 * 45GiB, 10.29s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 MASTER_PORT=29501 \
 NPROC_PER_NODE=4 \
 swift rlhf \

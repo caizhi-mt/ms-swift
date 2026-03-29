@@ -1,5 +1,5 @@
 # 2GB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen2.5-0.5B \
     --tuner_type lora \

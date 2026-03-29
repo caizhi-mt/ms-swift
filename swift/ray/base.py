@@ -267,7 +267,7 @@ class RayHelper:
             local_groups = _config['workers']
 
             VISIBLE_ENV_MAPPING = {
-                'GPU': 'CUDA_VISIBLE_DEVICES',
+                'GPU': 'MUSA_VISIBLE_DEVICES',
                 'NPU': 'ASCEND_VISIBLE_DEVICES',
             }
 

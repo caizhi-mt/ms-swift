@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 from functools import partial
 from json import JSONDecodeError
-from transformers.utils import is_torch_cuda_available, is_torch_npu_available
+from transformers.utils import is_torch_musa_available, is_torch_npu_available
 from typing import Type
 
 from swift.arguments import EvalArguments
@@ -56,7 +56,7 @@ class LLMEval(BaseUI):
                 'en': 'Choose GPU'
             },
             'info': {
-                'zh': '选择训练使用的GPU号，如CUDA不可用只能选择CPU',
+                'zh': '选择训练使用的GPU号，如MUSA不可用只能选择CPU',
                 'en': 'Select GPU to train'
             }
         },
@@ -166,16 +166,16 @@ class LLMEval(BaseUI):
         devices = [d for d in devices if d]
         assert (len(devices) == 1 or 'cpu' not in devices)
         gpus = ','.join(devices)
-        cuda_param = ''
+        musa_param = ''
         if gpus != 'cpu':
             if is_torch_npu_available():
-                cuda_param = f'ASCEND_RT_VISIBLE_DEVICES={gpus}'
+                musa_param = f'ASCEND_RT_VISIBLE_DEVICES={gpus}'
                 all_envs['ASCEND_RT_VISIBLE_DEVICES'] = gpus
-            elif is_torch_cuda_available():
-                cuda_param = f'CUDA_VISIBLE_DEVICES={gpus}'
-                all_envs['CUDA_VISIBLE_DEVICES'] = gpus
+            elif is_torch_musa_available():
+                musa_param = f'MUSA_VISIBLE_DEVICES={gpus}'
+                all_envs['MUSA_VISIBLE_DEVICES'] = gpus
             else:
-                cuda_param = ''
+                musa_param = ''
         now = datetime.now()
         time_str = f'{now.year}{now.month}{now.day}{now.hour}{now.minute}{now.second}'
         file_path = f'output/{eval_args.model_type}-{time_str}'
@@ -188,11 +188,11 @@ class LLMEval(BaseUI):
         params += '--ignore_args_error true '
         command.extend(['--ignore_args_error', 'true'])
         if sys.platform == 'win32':
-            if cuda_param:
-                cuda_param = f'set {cuda_param} && '
-            run_command = f'{cuda_param}start /b swift eval {params} > {log_file} 2>&1'
+            if musa_param:
+                musa_param = f'set {musa_param} && '
+            run_command = f'{musa_param}start /b swift eval {params} > {log_file} 2>&1'
         else:
-            run_command = f'{cuda_param} nohup swift eval {params} > {log_file} 2>&1 &'
+            run_command = f'{musa_param} nohup swift eval {params} > {log_file} 2>&1 &'
         return command, all_envs, run_command, eval_args, log_file
 
     @classmethod

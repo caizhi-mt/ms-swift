@@ -582,8 +582,8 @@ if __name__ == '__main__':
 使用命令行训练：
 ```shell
 # 4 * 35GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -628,8 +628,8 @@ swift sft \
 
 训练后对验证集进行推理：（环境变量请与训练时对齐）
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
 MAX_PIXELS=1003520 \

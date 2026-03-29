@@ -1,7 +1,7 @@
 # 8 * 46GiB; 13s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=8 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 megatron rlhf \
     --rlhf_type dpo \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \

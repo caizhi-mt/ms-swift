@@ -19,7 +19,7 @@ ms-swift使用了分层式的设计思想，用户可以使用命令行界面、
 
 **全参数模型：**
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift infer \
+MUSA_VISIBLE_DEVICES=0 swift infer \
     --model Qwen/Qwen2.5-7B-Instruct \
     --stream true \
     --infer_backend transformers \
@@ -28,7 +28,7 @@ CUDA_VISIBLE_DEVICES=0 swift infer \
 
 **LoRA模型：**
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift infer \
+MUSA_VISIBLE_DEVICES=0 swift infer \
     --model Qwen/Qwen2.5-7B-Instruct \
     --adapters swift/test_lora \
     --stream true \
@@ -50,7 +50,7 @@ CUDA_VISIBLE_DEVICES=0 swift infer \
 **多模态模型**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -91,7 +91,7 @@ The video shows a baby wearing sunglasses sitting on a bed and reading a book. T
 
 **数据集推理：**
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift infer \
+MUSA_VISIBLE_DEVICES=0 swift infer \
     --model Qwen/Qwen2.5-7B-Instruct \
     --stream true \
     --infer_backend transformers \
@@ -127,7 +127,7 @@ CUDA_VISIBLE_DEVICES=0 swift infer \
 文本模型：
 ```python
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 from swift.infer_engine import TransformersEngine, RequestConfig, InferRequest
 model = 'Qwen/Qwen2.5-0.5B-Instruct'
@@ -152,7 +152,7 @@ print(f'response1: {resp_list[1].choices[0].message.content}')
 多模态模型：
 ```python
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 os.environ['MAX_PIXELS'] = '1003520'
 os.environ['VIDEO_MAX_PIXELS'] = '50176'
 os.environ['FPS_MAX_FRAMES'] = '12'
@@ -197,7 +197,7 @@ print(f'response2: {resp_list[2].choices[0].message.content}')
 
 服务端部署：
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift deploy \
+MUSA_VISIBLE_DEVICES=0 swift deploy \
     --model Qwen/Qwen2.5-7B-Instruct \
     --infer_backend vllm \
     --max_new_tokens 2048 \
@@ -221,7 +221,7 @@ curl http://localhost:8000/v1/chat/completions \
 
 ```shell
 # test env: pip install transformers==4.51.3 vllm==0.8.5.post1
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \

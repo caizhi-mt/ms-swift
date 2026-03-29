@@ -18,10 +18,10 @@ docker run  -it --net=host --uts=host --ipc=host --privileged=true --group-add v
 ```
 ## 2. 环境检查
 ### 2.1. 检查 Metax GPU 是否可用
-得益于与 CUDA 的兼容性，我们可以像使用 NVIDIA GPU 一样检查 Metax 设备是否可用：
+得益于与 MUSA 的兼容性，我们可以像使用 NVIDIA GPU 一样检查 Metax 设备是否可用：
 ```python
 import torch
-print(torch.cuda.is_available())
+print(torch.musa.is_available())
 # True
 ```
 ### 2.2. 检查 GPU 之间的 P2P 连接拓扑
@@ -173,10 +173,10 @@ pip list |grep torch
 
 ```python
 import torch
-torch.cuda.is_available()
+torch.musa.is_available()
 ```
 
-### 3.4. Metax 与 NVIDIA CUDA 的差异
+### 3.4. Metax 与 NVIDIA MUSA 的差异
 Metax 在大部分接口上与 NVIDIA 对齐，但在某些软件行为和环境变量上存在差异。
 
 #### 3.4.1. MACA_MPS_MODE

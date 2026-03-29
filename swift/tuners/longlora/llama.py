@@ -356,7 +356,7 @@ def sdpa_forward(
     if attention_mask is not None:
         causal_mask = causal_mask[:, :, :, :key_states.shape[-2]]
 
-    if query_states.device.type == 'cuda' and causal_mask is not None:
+    if query_states.device.type == 'musa' and causal_mask is not None:
         query_states = query_states.contiguous()
         key_states = key_states.contiguous()
         value_states = value_states.contiguous()
@@ -396,8 +396,8 @@ def replace_llama_attn(model: nn.Module):
     assert layers is not None
     for idx, m in enumerate(layers):
         if model.config._attn_implementation == 'flash_attention_2':
-            cuda_major, cuda_minor = torch.cuda.get_device_capability()
-            if cuda_major < 8:
+            musa_major, musa_minor = torch.musa.get_device_capability()
+            if musa_major < 8:
                 logger.warn(
                     'Flash attention is only supported on A100 or H100 GPU during training due to head dim > 64 backward.'  # noqa
                     'ref: https://github.com/HazyResearch/flash-attention/issues/190#issuecomment-1523359593')

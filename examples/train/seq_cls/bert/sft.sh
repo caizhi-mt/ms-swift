@@ -1,7 +1,7 @@
 # If `num_labels` is provided, it will be considered a classification task,
 # and AutoModelForSequenceClassification will be used to load the model.
 # The BERT model does not require templates, so it can usually be used without registration.
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model AI-ModelScope/bert-base-chinese \
     --tuner_type lora \

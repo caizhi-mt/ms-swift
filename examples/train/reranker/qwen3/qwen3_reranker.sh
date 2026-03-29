@@ -1,6 +1,6 @@
 # 2*20GiB
 # losses: swift/loss
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 NPROC_PER_NODE=2 \
 swift sft \
     --model Qwen/Qwen3-Reranker-4B \

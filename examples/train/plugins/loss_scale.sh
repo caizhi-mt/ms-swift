@@ -1,7 +1,7 @@
 # loss_scale all to train all tokens
 # use loss_type loss_scale
 # This is just an example
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen2.5-7B-Instruct \
     --tuner_type lora \

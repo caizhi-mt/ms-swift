@@ -1,5 +1,5 @@
 # `--tuner_type dummy`
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model LLM-Research/Phi-4-multimodal-instruct \
     --dataset 'AI-ModelScope/LaTeX_OCR:human_handwrite#20000' \

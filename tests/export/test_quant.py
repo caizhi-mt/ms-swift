@@ -1,7 +1,7 @@
 import os
 from typing import Literal
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 
 def test_llm_quant(quant_method: Literal['gptq', 'awq'] = 'awq'):

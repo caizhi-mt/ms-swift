@@ -513,7 +513,7 @@ class RolloutTrainerMixin(RLHFTrainerMixin):
             # Convert DTensor to regular Tensor if needed (FSDP2)
             if hasattr(param, 'full_tensor'):
                 if param.is_cpu:
-                    param = param.to(torch.device('cuda'))
+                    param = param.to(torch.device('musa'))
                 param = param.full_tensor()
 
             processed[clean_name] = param
@@ -614,7 +614,7 @@ class RolloutTrainerMixin(RLHFTrainerMixin):
                     continue
                 if hasattr(param, 'full_tensor'):
                     if param.is_cpu:
-                        param = param.to(torch.device('cuda'))
+                        param = param.to(torch.device('musa'))
                     param = param.full_tensor()
                 raw_state_dict[name] = param
         else:
@@ -1174,7 +1174,7 @@ class RolloutTrainerMixin(RLHFTrainerMixin):
         # FSDP2: simple .cpu() is sufficient
         if self._is_fsdp2:
             model.cpu()
-            torch.cuda.empty_cache()
+            torch.musa.empty_cache()
             return
 
         # Default: iterate over parameters
@@ -1185,7 +1185,7 @@ class RolloutTrainerMixin(RLHFTrainerMixin):
                 param.ds_tensor.data = param.ds_tensor.data.to('cpu', non_blocking=True)
             else:
                 param.data = param.data.to(torch.device('cpu'), non_blocking=True)
-        torch.cuda.empty_cache()
+        torch.musa.empty_cache()
 
     @torch.no_grad()
     def load_model(self, model):

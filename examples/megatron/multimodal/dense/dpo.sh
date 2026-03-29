@@ -1,8 +1,8 @@
 # 4 * 50GiB 14s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 megatron rlhf \
     --rlhf_type dpo \
     --model Qwen/Qwen2.5-VL-7B-Instruct \

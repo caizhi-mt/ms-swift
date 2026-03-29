@@ -8,7 +8,7 @@ from packaging import version
 from swift import ExportArguments, export_main
 
 if __name__ == '__main__':
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 
 class TestTemplate(unittest.TestCase):

@@ -93,7 +93,7 @@ class LLMRLHF(LLMTrain):
                 'en': 'Choose GPU'
             },
             'info': {
-                'zh': '选择训练使用的GPU号，如CUDA不可用只能选择CPU',
+                'zh': '选择训练使用的GPU号，如MUSA不可用只能选择CPU',
                 'en': 'Select GPU to train'
             }
         },

@@ -16,7 +16,7 @@ Inference using transformers:
 
 ```python
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 from modelscope import snapshot_download
 from qwen_vl_utils import process_vision_info
 from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
@@ -55,7 +55,7 @@ if video_inputs is not None:
 else:
     video_metadatas = None
 inputs = processor(text=[text], images=image_inputs, videos=video_inputs, video_metadata=video_metadatas, **video_kwargs, do_resize=False, return_tensors="pt")
-inputs = inputs.to('cuda')
+inputs = inputs.to('musa')
 
 generated_ids = model.generate(**inputs, max_new_tokens=128, do_sample=False)
 generated_ids_trimmed = [
@@ -73,7 +73,7 @@ Inference using ms-swift's TransformersEngine:
 ```python
 import os
 # os.environ['SWIFT_DEBUG'] = '1'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 os.environ['VIDEO_MAX_TOKEN_NUM'] = '128'
 os.environ['FPS_MAX_FRAMES'] = '16'
 
@@ -102,7 +102,7 @@ print()
 Inference using command line:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
@@ -178,12 +178,12 @@ Below is a fine-tuning script for the `Qwen3-VL-4B-Instruct` model. We use mixed
 
 ```shell
 # 2 * 21GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 swift sft \
     --model Qwen/Qwen3-VL-4B-Instruct \
     --dataset 'AI-ModelScope/alpaca-gpt4-data-zh#10000' \
@@ -222,8 +222,8 @@ swift sft \
 After training, we use the following script to perform inference on the validation set:
 
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0 \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
@@ -256,10 +256,10 @@ The fine-tuning script is as follows. For adjusting training techniques and para
 
 ```shell
 # 8 * 80GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 OMP_NUM_THREADS=14 \
 NPROC_PER_NODE=8 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
@@ -305,8 +305,8 @@ megatron sft \
 After training, we use the following script to perform inference on the validation set:
 
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0 \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \

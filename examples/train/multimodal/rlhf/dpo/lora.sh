@@ -3,7 +3,7 @@
 # --rlhf_type cpo/orpo/simpo/rm are also supported
 nproc_per_node=2
 
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 NPROC_PER_NODE=$nproc_per_node \
 MAX_PIXELS=1003520 \
 swift rlhf \

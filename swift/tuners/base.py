@@ -247,7 +247,7 @@ class SwiftModel(nn.Module):
             The state dict.
         """
         if device is None:
-            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            device = 'musa' if torch.musa.is_available() else 'cpu'
         if os.path.exists(os.path.join(path, SAFETENSORS_WEIGHTS_NAME)):
             filename = os.path.join(path, SAFETENSORS_WEIGHTS_NAME)
             from safetensors.torch import load_file as safe_load_file
@@ -471,7 +471,7 @@ class SwiftModel(nn.Module):
                 Controls whether to compute the full or reduced SVD, and consequently, the shape of the returned
                 tensors U and Vh. Defaults to True.
             svd_driver (`str`, *optional*):
-                Name of the cuSOLVER method to be used. This keyword argument only works when merging on CUDA. Can be
+                Name of the cuSOLVER method to be used. This keyword argument only works when merging on MUSA. Can be
                 one of [None, `gesvd`, `gesvdj`, `gesvda`]. For more info please refer to `torch.linalg.svd`
                 documentation. Defaults to None.
             density (`float`, *optional*):
@@ -685,8 +685,8 @@ class SwiftModel(nn.Module):
                 trainable_params += num_params
         return f'trainable params: {trainable_params:,d} || all params: {all_param:,d} ' \
                f'|| trainable%: {100 * trainable_params / all_param:.4f}' \
-               '|| cuda memory: ' \
-               f'{sum([torch.cuda.memory_allocated(i) for i in range(get_device_count())]) / 1024 / 1024 / 1024:.2f}' \
+               '|| musa memory: ' \
+               f'{sum([torch.musa.memory_allocated(i) for i in range(get_device_count())]) / 1024 / 1024 / 1024:.2f}' \
                'GiB.'
 
 

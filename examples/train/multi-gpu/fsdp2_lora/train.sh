@@ -2,7 +2,7 @@
 # NOTE: for swift>=3.12, you can use --fsdp fsdp2 instead of accelerate launch
 nproc_per_node=2
 
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 accelerate launch --config_file "./examples/train/multi-gpu/fsdp2_lora/fsdp2.json" \
     swift/cli/sft.py \
     --model Qwen/Qwen2.5-7B-Instruct \

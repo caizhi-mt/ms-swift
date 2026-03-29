@@ -107,7 +107,7 @@ orms['external_r1v_acc'] = MultiModalAccuracyORM
 由于任务简单，我们设置max_completion_length为1024，奖励函数选择external_r1v_acc和format，学习率和beta分别设置为1e-6和0.001。其他设置如下所示，batch_size和num_generations的设置原则可以参考[GRPO完整流程](./GRPO.md)。
 首先拉起 external vLLM server
 ```bash
-CUDA_VISIBLE_DEVICES=6,7 \
+MUSA_VISIBLE_DEVICES=6,7 \
 swift rollout \
     --model Qwen/Qwen2.5-VL-3B-Instruct \
     --vllm_data_parallel_size 2
@@ -115,7 +115,7 @@ swift rollout \
 
 ```shell
 WANDB_API_KEY=your_wandb_api_key \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5 \
 NPROC_PER_NODE=6 \
 swift rlhf \
     --rlhf_type grpo \
@@ -189,7 +189,7 @@ step 400:
 
 ```shell
 WANDB_API_KEY=your_wandb_api_key \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5 \
 MAX_PIXELS=401408 \
 NPROC_PER_NODE=6 \
 swift rlhf \
@@ -256,7 +256,7 @@ Assistant:
 选取的模型和大部分超参数与上一个实验相似，由于训练的时候出现了OOM，我们设置`MAX_PIXELS=262144`以降低显存占用。
 ```shell
 WANDB_API_KEY=your_wandb_api_key \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5 \
 MAX_PIXELS=262144 \
 MASTER_PORT=29600 \
 NPROC_PER_NODE=6 \

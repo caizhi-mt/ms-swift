@@ -2,7 +2,7 @@
 # You can refer to `https://github.com/QwenLM/Qwen2.5-VL` for the meaning of the `VIDEO_MAX_PIXELS` parameter.
 nproc_per_node=2
 
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 NPROC_PER_NODE=$nproc_per_node \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \

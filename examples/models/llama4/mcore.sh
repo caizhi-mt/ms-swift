@@ -1,8 +1,8 @@
 # transformers: https://github.com/modelscope/ms-swift/blob/main/examples/train/moe/llama4.sh
 # 4 * 80GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 megatron sft \
     --model LLM-Research/Llama-4-Scout-17B-16E-Instruct \
     --save_safetensors true \
@@ -48,7 +48,7 @@ megatron sft \
     --attention_backend unfused
 
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift infer \
     --model megatron_output/Llama-4-Scout-17B-16E-Instruct/vx-xxx/checkpoint-xxx \
     --stream true \

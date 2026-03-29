@@ -3,7 +3,7 @@
 # The calculator tool implemented here can perform only basic arithmetic operations and may not be able to solve all math problems in the dataset.
 # Before running this script, please run the following `swift rollout` script first
 
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift rollout \
 #     --model Qwen/Qwen2.5-7B-Instruct \
 #     --vllm_use_async_engine true \
@@ -35,7 +35,7 @@ Final Answer: the final answer to the original input question, the answer should
 Begin!
 '
 
-CUDA_VISIBLE_DEVICES=1,2,3 \
+MUSA_VISIBLE_DEVICES=1,2,3 \
 NPROC_PER_NODE=3 \
 swift rlhf \
     --rlhf_type grpo \

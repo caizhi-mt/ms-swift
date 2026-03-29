@@ -162,7 +162,7 @@ class Qwen3NextSelfAttention(SelfAttention):
             attention_bias (Optional[Tensor]): Attention bias.
             packed_seq_params (Optional[PackedSeqparams]): Parameters used for THD format.
             sequence_len_offset (Optional[int]): Sequence length offset used for
-                inference CUDA graphs.
+                inference MUSA graphs.
 
         Return:
             (Tuple[Tensor, Tensor]) Attention output and bias.
@@ -239,8 +239,8 @@ class Qwen3NextSelfAttention(SelfAttention):
             output, bias = self.linear_proj(context_layer)
             return output, bias
 
-        if (in_decode_mode and self.config.enable_cuda_graph and inference_context.is_static_batching()):
-            raise ValueError('CUDA graphs must use flash decode with static batching!')
+        if (in_decode_mode and self.config.enable_musa_graph and inference_context.is_static_batching()):
+            raise ValueError('MUSA graphs must use flash decode with static batching!')
 
         result = self._adjust_key_value_for_inference(
             inference_context,

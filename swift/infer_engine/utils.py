@@ -268,7 +268,7 @@ def patch_lmdeploy(load_weights=False):
                 for _ in e.map(self.model_comm.process_weight, self.gpu_list, ranks):
                     pass
             if version.parse(lmdeploy.__version__) < version.parse('0.7.2'):
-                for _ in e.map(self.model_comm.create_engine, self.gpu_list, ranks, repeat(self.nccl_params)):
+                for _ in e.map(self.model_comm.create_engine, self.gpu_list, ranks, repeat(self.mccl_params)):
                     pass
             else:
                 for _ in e.map(self.model_comm.create_engine, self.gpu_list, ranks):
@@ -281,7 +281,7 @@ def patch_lmdeploy(load_weights=False):
         self.node_id = 0
         self.node_num = 1
         if version.parse(lmdeploy.__version__) < version.parse('0.7.2'):
-            self.nccl_params = model_comm.create_nccl_params(self.node_id)
+            self.mccl_params = model_comm.create_mccl_params(self.node_id)
         synchronize()
 
         # create weight
@@ -330,8 +330,8 @@ def patch_lmdeploy(load_weights=False):
 
     from lmdeploy.turbomind.turbomind import TurboMindInstance
 
-    def create_instance(self, cuda_stream_id=0):
-        return TurboMindInstance(self, self.config, cuda_stream_id, self.gpu_list)
+    def create_instance(self, musa_stream_id=0):
+        return TurboMindInstance(self, self.config, musa_stream_id, self.gpu_list)
 
     TurboMind.__origin_init__ = TurboMind.__init__
     TurboMind.__init__ = __init__
@@ -341,11 +341,11 @@ def patch_lmdeploy(load_weights=False):
     if load_weights:
         TurboMind.load_weights = _load_weights
 
-    def __init_ins__(self, tm_model, config, cuda_stream_id=0, gpu_list=None):
+    def __init_ins__(self, tm_model, config, musa_stream_id=0, gpu_list=None):
         if gpu_list is None:
             gpu_list = [0]
         self.gpu_list = gpu_list
-        self.__origin_init__(tm_model, config, cuda_stream_id)
+        self.__origin_init__(tm_model, config, musa_stream_id)
 
     def _create_model_instance(self, device_id):
         model_inst = self.tm_model.model_comm.create_model_instance(self.gpu_list[0])

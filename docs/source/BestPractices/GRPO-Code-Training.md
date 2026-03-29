@@ -40,7 +40,7 @@
 - `--external_plugins`设置为plugin.py的路径。
 首先拉起 vLLM server
 ```bash
-CUDA_VISIBLE_DEVICES=7 \
+MUSA_VISIBLE_DEVICES=7 \
 swift rollout \
   --model Qwen/Qwen2.5-7B-Instruct \
   --vllm_enable_lora true \
@@ -50,7 +50,7 @@ swift rollout \
 ```bash
 E2B_API_KEY=xxx \
 WANDB_API_KEY=xxx \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6 \
 NPROC_PER_NODE=7 \
 swift rlhf \
     --rlhf_type grpo \
@@ -102,7 +102,7 @@ swift rlhf \
 JUDGE0_ENDPOINT=xxx \
 JUDGE0_X_AUTH_TOKEN=xxx \
 WANDB_API_KEY=xxx \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6 \
 NPROC_PER_NODE=7 \
 swift rlhf \
     --rlhf_type grpo \

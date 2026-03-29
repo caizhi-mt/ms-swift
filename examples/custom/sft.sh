@@ -1,5 +1,5 @@
 # sh examples/custom/sft.sh
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --external_plugins examples/custom/dataset.py \
                        examples/custom/model.py \

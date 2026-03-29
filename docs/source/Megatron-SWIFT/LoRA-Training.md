@@ -15,7 +15,7 @@ Qwen3-235B-A22B-Instruct-250718 单机8卡H20 LoRA训练的最佳实践参考：
 ```shell
 # megatron export
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron export \
     --model Qwen/Qwen2.5-7B-Instruct \
     --tensor_model_parallel_size 2 \
@@ -25,7 +25,7 @@ megatron export \
     --test_convert_precision true
 
 # swift export
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift export \
 #     --model Qwen/Qwen2.5-7B-Instruct \
 #     --to_mcore true \
@@ -40,9 +40,9 @@ megatron export \
 ```bash
 # full: 2 * 70GiB 0.61s/it
 # lora: 2 * 14GiB 0.45s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --mcore_model Qwen2.5-7B-Instruct-mcore \
     --save_safetensors false \
@@ -84,7 +84,7 @@ megatron sft \
 ```bash
 # megatron export
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron export \
     --mcore_adapter megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx \
     --to_hf true \
@@ -95,7 +95,7 @@ megatron export \
     --test_convert_precision true
 
 # swift export
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift export \
 #     --mcore_adapter megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx \
 #     --to_hf true \
@@ -108,7 +108,7 @@ megatron export \
 ### 推理
 ```shell
 # 如果是全量权重，请将`--adapters`替换为`--model
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx-hf \
     --stream true
@@ -120,7 +120,7 @@ swift infer \
 ```shell
 # megatron export
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron export \
     --mcore_adapter megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx \
     --tensor_model_parallel_size 2 \
@@ -131,7 +131,7 @@ megatron export \
     --test_convert_precision true
 
 # swift export
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift export \
 #     --mcore_adapter megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx \
 #     --to_mcore true \
@@ -147,9 +147,9 @@ megatron export \
 ```shell
 # full: 2 * 70GiB 0.61s/it
 # lora: 2 * 14GiB 0.45s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen2.5-7B-Instruct \
     --save_safetensors true \
@@ -190,7 +190,7 @@ megatron sft \
 
 ```shell
 # 如果是全量权重，请将`--adapters`替换为`--model
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters megatron_output/Qwen2.5-7B-Instruct/vx-xxx/checkpoint-xxx-hf \
     --stream true

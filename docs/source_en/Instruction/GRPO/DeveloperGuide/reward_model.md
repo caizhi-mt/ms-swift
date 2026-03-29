@@ -87,7 +87,7 @@ First, use the following command to start the model service:
 
 ```bash
 # Note: Do not overlap deployment devices with training devices
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift deploy \
     --model Qwen/Qwen2.5-72B-Instruct \
     --vllm_tensor_parallel_size 4

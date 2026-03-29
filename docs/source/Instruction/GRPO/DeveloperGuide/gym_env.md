@@ -111,7 +111,7 @@ GYM环境训练可以视作一种特殊的多轮训练，区别在于使用GYM�
 
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift rollout \
     --model xxx \
     --use_gym_env true \

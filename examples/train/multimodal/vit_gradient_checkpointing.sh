@@ -2,7 +2,7 @@
 # gc true, vgc false: 62GiB 2.32s/it
 # gc false, vgc true: 56GiB 2.16s/it
 # gc false, vgc false: 77GiB 1.95s/it
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \

@@ -4,7 +4,7 @@
 pip install git+https://github.com/huggingface/transformers@82a06db03535c49aa987719ed0746a76093b1ec4
 
 
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Tencent-Hunyuan/HunyuanOCR \
     --dataset 'AI-ModelScope/LaTeX_OCR:human_handwrite#20000' \
@@ -33,7 +33,7 @@ swift sft \
     --dataloader_num_workers 4
 
 
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift infer \
 #     --adapters output/vx-xxx/checkpoint-xxx \
 #     --stream true \

@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift deploy \
     --adapters output/vx-xxx/checkpoint-xxx \
     --served_model_name bert-base-chinese \

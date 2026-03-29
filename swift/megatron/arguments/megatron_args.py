@@ -437,7 +437,7 @@ class MegatronArguments(RLHFMegatronArgumentsMixin, MegatronTunerMixin):
     # dist
     local_rank: Optional[int] = None  # Compatible with DeepSpeed launch
     ddp_timeout: int = 18000000
-    ddp_backend: Literal['nccl', 'gloo'] = 'nccl'
+    ddp_backend: Literal['mccl', 'gloo'] = 'mccl'
     use_distributed_optimizer: bool = True
     tensor_model_parallel_size: int = 1
     pipeline_model_parallel_size: int = 1
@@ -594,7 +594,7 @@ class MegatronArguments(RLHFMegatronArgumentsMixin, MegatronTunerMixin):
             require_version('peft>=0.15', 'Please install peft>=0.15 to use LoRA in Megatron-SWIFT.')
         RLHFMegatronArgumentsMixin.__post_init__(self)
         MegatronTunerMixin.__post_init__(self)
-        os.environ.setdefault('CUDA_DEVICE_MAX_CONNECTIONS', '1')
+        os.environ.setdefault('MUSA_DEVICE_MAX_CONNECTIONS', '1')
         if self.recompute_granularity == 'none':
             self.recompute_granularity = None
         if self.recompute_granularity == 'selective' and self.recompute_method is not None:

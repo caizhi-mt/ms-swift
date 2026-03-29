@@ -24,7 +24,7 @@ ValueError(f'assistant_message; {assistant_message}')
 ValueError: assistant_message: {'role' :'assistant', 'content': ''}
 ```
 ```shell
-CUDA_VISIBLE_DEVICES=0 NPROC_PER_NODE=1 MAX_PIXELS=1003520 swift sft --model Qwen/Qwen2.5-VL-7B-Instruct --tuner_type lora --dataset /mnt/workspace/data.json --deepspeed zero2 --max_length 16384
+MUSA_VISIBLE_DEVICES=0 NPROC_PER_NODE=1 MAX_PIXELS=1003520 swift sft --model Qwen/Qwen2.5-VL-7B-Instruct --tuner_type lora --dataset /mnt/workspace/data.json --deepspeed zero2 --max_length 16384
 ```
 If the assistant field in the dataset is empty, remove this empty string for inference, as it can cause NaN values during training and will be checked for.
 
@@ -32,7 +32,7 @@ If the assistant field in the dataset is empty, remove this empty string for inf
 Setting the command-line parameter `--load_from_cache_file true` can speed up dataset loading, especially for multimodal datasets or large datasets. When debugging or modifying a preprocessor, set it to false. For more information, search for this parameter in the [Command-line Parameters documentation](https://swift.readthedocs.io/en/latest/Instruction/Command-line-parameters.html).
 
 ### Q4: How do I set up the Swift environment? Are there Docker images available?
-For environment setup, see the [Swift Installation documentation](https://swift.readthedocs.io/en/latest/GetStarted/SWIFT-installation.html). Recommended versions for some common dependencies can be found on the [homepage](https://github.com/modelscope/ms-swift/blob/main/README.md). The documentation provides a Docker image. You can start a container using the `docker run` command, for example: `docker run --gpus all -p 8000:8000 -it -d --name ms modelscope-registry.cn-hangzhou.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-cuda12.8.1-py311-torch2.9.0-vllm0.13.0-modelscope1.33.0-swift3.12.5 /bin/bash`. After starting the container, pull the latest code and install Swift.
+For environment setup, see the [Swift Installation documentation](https://swift.readthedocs.io/en/latest/GetStarted/SWIFT-installation.html). Recommended versions for some common dependencies can be found on the [homepage](https://github.com/modelscope/ms-swift/blob/main/README.md). The documentation provides a Docker image. You can start a container using the `docker run` command, for example: `docker run --gpus all -p 8000:8000 -it -d --name ms modelscope-registry.cn-hangzhou.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-musa12.8.1-py311-torch2.9.0-vllm0.13.0-modelscope1.33.0-swift3.12.5 /bin/bash`. After starting the container, pull the latest code and install Swift.
 
 ### Q5: Questions about multimodal model training data formats, parameter freezing, and optimizer settings
 See [examples](https://github.com/modelscope/ms-swift/tree/main/examples/train/multimodal) for multimodal model training. It supports training with text-only data, image-text data, or a mixture of both. For parameters related to images, videos, and audio, such as max pixels, fps, etc., please see [Model-specific Parameters](https://swift.readthedocs.io/en/latest/Instruction/Command-line-parameters.html#specific-model-arguments).
@@ -225,7 +225,7 @@ They are not supported together.
 
 ### Q49: How can I handle this error? Installing apex didn't help.
 ```text
-RuntimeError: ColumnParallelLinear was called with gradient_accumulation_fusion set to True but the custom CUDA extension fused_weight_gradient_mlp_cuda module is not found. To use gradient_accumulation_fusion you must install APEX with --cpp_ext and --cuda_ext. For example: pip install --global-option="--cpp_ext" --global-option="--cuda_ext ." Note that the extension requires CUDA>=11. Otherwise, you must turn off gradient accumulation fusion.
+RuntimeError: ColumnParallelLinear was called with gradient_accumulation_fusion set to True but the custom MUSA extension fused_weight_gradient_mlp_musa module is not found. To use gradient_accumulation_fusion you must install APEX with --cpp_ext and --musa_ext. For example: pip install --global-option="--cpp_ext" --global-option="--musa_ext ." Note that the extension requires MUSA>=11. Otherwise, you must turn off gradient accumulation fusion.
 ```
 Set `--gradient_accumulation_fusion false`.
 
@@ -233,13 +233,13 @@ Set `--gradient_accumulation_fusion false`.
 Check `interleave_prob` in the [Command-line Parameters Documentation](https://swift.readthedocs.io/en/latest/Instruction/Command-line-parameters.html).
 
 ### Q51: I have a question. During multimodal packing pre-training, it seems the GPU memory usage increases slightly after each "pytorch allocator cache flushes since last step," leading to an OOM error after many steps.
-Add the environment variable `PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True'`.
+Add the environment variable `PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True'`.
 
 ### Q52: Can use_logits_to_keep be used with large multimodal models now?
 It will cause an error if the expansion of multimodal tokens happens within the model's forward pass.
 
 ### Q53: Why does the GPU memory usage increase significantly several times during training, for example, at step 50 or 100?
-Set the `PYTORCH_CUDA_ALLOC_CONF` environment variable. For details, please refer to the PyTorch documentation.
+Set the `PYTORCH_MUSA_ALLOC_CONF` environment variable. For details, please refer to the PyTorch documentation.
 
 ### Q54: Is there a practical guide for fine-tuning a Qwen base model into a chat model? Are there any special configurations needed?
 Use `swift sft`. No other special configurations are needed. Refer to the [example](https://github.com/modelscope/ms-swift/tree/main/examples/train/base_to_chat).
@@ -324,7 +324,7 @@ Swift's templates are aligned with those of Transformers. Check if the inference
 For embedding model inference, refer to the [example](https://github.com/modelscope/ms-swift/blob/main/examples/infer/demo_embedding.py) here. For reranker model inference, refer to the [example](https://github.com/modelscope/ms-swift/blob/main/examples/infer/demo_reranker.py) here.
 
 ### Q16: When using a Python script for inference, how can I use the CPU?
-Set the environment variable: `os.environ['CUDA_VISIBLE_DEVICES'] = '-1'`.
+Set the environment variable: `os.environ['MUSA_VISIBLE_DEVICES'] = '-1'`.
 
 ### Q17: Does the swift infer command support multi-machine inference?
 If the model can fit on a single node, you can orchestrate it using Kubernetes. If the model does not fit on a single node, multi-machine inference is not supported.

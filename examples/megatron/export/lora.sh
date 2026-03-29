@@ -4,7 +4,7 @@
 
 # You can also change `--model safetensors-path` to `--mcore_model torch-dist-path`.
 # These two methods are equivalent, and mcore-bridge will handle it automatically.
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -18,7 +18,7 @@ megatron export \
     --test_convert_precision true
 
 # safetensors -> torch_dist
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -33,7 +33,7 @@ megatron export \
 
 # Merge-LoRA:
 # torch_dist -> torch_dist
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \

@@ -2,7 +2,7 @@ import os
 import torch
 from typing import Literal
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 
 def _prepare(infer_backend: Literal['vllm', 'transformers', 'lmdeploy']):

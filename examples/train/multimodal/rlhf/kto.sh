@@ -2,7 +2,7 @@
 # we will use a pure text kto dataset as an example here.
 nproc_per_node=2
 
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 NPROC_PER_NODE=$nproc_per_node \
 MAX_PIXELS=1003520 \
 swift rlhf \

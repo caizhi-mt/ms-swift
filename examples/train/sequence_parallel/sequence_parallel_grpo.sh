@@ -1,5 +1,5 @@
 NPROC_PER_NODE=8 \
-PYTORCH_CUDA_ALLOC_CONF='' \
+PYTORCH_MUSA_ALLOC_CONF='' \
 swift rlhf \
     --rlhf_type grpo \
     --model Qwen/Qwen2.5-7B \

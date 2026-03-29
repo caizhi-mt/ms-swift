@@ -2,7 +2,7 @@
 export teacher_model='OpenGVLab/InternVL3-8B'
 
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift infer \
     --model $teacher_model \
     --infer_backend vllm \
@@ -16,8 +16,8 @@ swift infer \
 
 # 4 * 42GiB, 3.05s/it
 NPROC_PER_NODE=4 \
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift rlhf \
     --rlhf_type gkd \
     --model OpenGVLab/InternVL3-2B-Pretrained \

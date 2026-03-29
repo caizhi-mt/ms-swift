@@ -3,7 +3,7 @@ import os
 from openai import OpenAI
 from typing import Literal
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 
 def infer(client, model: str, messages):

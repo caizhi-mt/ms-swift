@@ -71,7 +71,7 @@ Supports four methods of evaluation: pure text evaluation, multimodal evaluation
 **Basic Example**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift eval \
     --model Qwen/Qwen2.5-0.5B-Instruct \
     --eval_backend Native \
@@ -89,7 +89,7 @@ Where:
 **Complex Evaluation Example**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift eval \
     --model Qwen/Qwen2.5-0.5B-Instruct \
     --eval_backend Native \
@@ -110,7 +110,7 @@ SWIFT supports using EvalScope to evaluate the current model during the training
 **Basic Example**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
   --model "Qwen/Qwen2.5-0.5B-Instruct" \
   --tuner_type "lora" \
@@ -185,7 +185,7 @@ Where:
 Run the following command:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift eval \
     --model Qwen/Qwen2.5-0.5B-Instruct \
     --eval_backend Native \
@@ -235,7 +235,7 @@ The JSON Lines file should follow this format:
 Run the following command:
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift eval \
     --model Qwen/Qwen2.5-0.5B-Instruct \
     --eval_backend Native \

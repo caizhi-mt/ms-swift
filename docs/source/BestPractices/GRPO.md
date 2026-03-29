@@ -113,13 +113,13 @@ num_processes * per_device_train_batch_size * gradient_accumulation_steps = 2 * 
 
 其他参数的设置，没有做太多探讨，所以这里不进行详细说明。
 ```bash
-CUDA_VISIBLE_DEVICES=2 \
+MUSA_VISIBLE_DEVICES=2 \
 swift rollout \
     --model Qwen/Qwen2.5-3B-Instruct
 ```
 
 ```bash
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 WANDB_API_KEY=your_wandb_key \
 NPROC_PER_NODE=2 \
 swift rlhf \

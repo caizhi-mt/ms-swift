@@ -1,5 +1,5 @@
 # 53GiB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model BAAI/Emu3-Gen \
     --infer_backend transformers \

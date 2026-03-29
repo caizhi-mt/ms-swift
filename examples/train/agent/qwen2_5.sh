@@ -1,5 +1,5 @@
 # 35GiB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen2.5-3B \
     --tuner_type full \

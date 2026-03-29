@@ -1,8 +1,8 @@
 # 4 * 50GiB
 # For inference code, refer to: examples/infer/demo_reranker.py
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 megatron sft \
     --model Qwen/Qwen3-VL-Reranker-8B \
     --task_type generative_reranker \

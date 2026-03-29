@@ -79,7 +79,7 @@ Additionally, we offer a series of scripts to help you understand the training c
 - When fine-tuning a base model to a chat model using LoRA technology with `swift sft`, you may sometimes need to manually set the template. Add the `--template default` parameter to avoid issues where the base model may fail to stop correctly due to encountering special characters in the dialogue template that it has not seen before. For more details, see [here](https://github.com/modelscope/ms-swift/tree/main/examples/train/base_to_chat).
 - If you need to train in an **offline** environment, please set `--model <model_dir>` and `--check_model false`. If the corresponding model requires `git clone` from GitHub repositories, such as `deepseek-ai/Janus-Pro-7B`, please manually download the repository and set `--local_repo_path <repo_dir>`. For specific parameter meanings, refer to the [command line parameter documentation](./Command-line-parameters.md).
 - Merging LoRA for models trained with QLoRA is not possible, so it is not recommended to use QLoRA for fine-tuning, as it cannot utilize vLLM/Sglang/LMDeploy for inference acceleration during inference and deployment. It is recommended to use LoRA or full parameter fine-tuning, merge them into complete weights, and then use GPTQ/AWQ/BNB for [quantization](https://github.com/modelscope/ms-swift/tree/main/examples/export/quantize).
-- If you are using an NPU for training, simply change `CUDA_VISIBLE_DEVICES` in the shell to `ASCEND_RT_VISIBLE_DEVICES`.
+- If you are using an NPU for training, simply change `MUSA_VISIBLE_DEVICES` in the shell to `ASCEND_RT_VISIBLE_DEVICES`.
 - By default, SWIFT sets `--gradient_checkpointing true` during training to save memory, which may slightly slow down the training speed.
 - If you are using DDP for training and encounter the error: `RuntimeError: Expected to mark a variable ready only once.`, please additionally set the parameter `--gradient_checkpointing_kwargs '{"use_reentrant": false}'` or use DeepSpeed for training.
 - To use DeepSpeed, you need to install it: `pip install deepspeed -U`. Using DeepSpeed can save memory but may slightly reduce training speed.
@@ -122,7 +122,7 @@ If you want to use the interface for training, you can refer to the [Web-UI docu
 To perform inference on a LoRA-trained checkpoint using the CLI:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --infer_backend transformers \
@@ -139,7 +139,7 @@ swift infer \
 For batch inference on the validation set of the dataset:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --infer_backend transformers \
@@ -155,7 +155,7 @@ swift infer \
 If you want to perform inference on an additional test set instead of using the training validation set, use `--val_dataset <dataset_path>` for inference:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --infer_backend transformers \
@@ -170,7 +170,7 @@ Example of Inference on LoRA-Trained Model Using Python:
 
 ```python
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 from swift.infer_engine import TransformersEngine, RequestConfig, InferRequest
 from swift import get_model_processor, get_template
@@ -208,7 +208,7 @@ Example of LoRA Inference for Multi-Modal Model:
 
 ```python
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 from swift.infer_engine import TransformersEngine, RequestConfig, InferRequest
 from swift import get_model_processor, get_template
@@ -267,7 +267,7 @@ print(f'args.default_system: {args.system}')
 Use the following command to start the deployment server. If the weights are trained using full parameters, please use `--model` instead of `--adapters` to specify the training checkpoint directory. You can refer to the client calling methods described in the [Inference and Deployment documentation](./Inference-and-deployment.md#Deployment): curl, OpenAI library, and Swift client.
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift deploy \
     --adapters output/vx-xxx/checkpoint-xxx \
     --infer_backend transformers \
@@ -285,7 +285,7 @@ First, you need to install vLLM: `pip install vllm -U`, and use `--infer_backend
 We pre-trained two base models with different self-awareness LoRA incremental weights for `Qwen/Qwen2.5-7B-Instruct` (which can run successfully). You can find relevant information in [args.json](https://modelscope.cn/models/swift/test_lora/file/view/master). You simply need to modify `--adapters` to specify the local path for the trained LoRA weights during deployment.
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift deploy \
     --adapters lora1=swift/test_lora lora2=swift/test_lora2 \
     --infer_backend vllm \

@@ -127,13 +127,13 @@ For KL divergence, the community has extensive discussions, such as [Why GRPO Ad
 Other parameter settings were not explored in detail and will not be discussed here.
 
 ```bash
-CUDA_VISIBLE_DEVICES=2 \
+MUSA_VISIBLE_DEVICES=2 \
 swift rollout \
     --model Qwen/Qwen2.5-3B-Instruct
 ```
 
 ```bash
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 WANDB_API_KEY=your_wandb_key \
 NPROC_PER_NODE=2 \
 swift rlhf \

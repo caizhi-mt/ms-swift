@@ -1,5 +1,5 @@
 # 18GB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model deepseek-ai/DeepSeek-R1-0528-Qwen3-8B \
     --tuner_type lora \

@@ -20,7 +20,7 @@ from swift.utils import get_torch_device, is_trl_available, is_vllm_ascend_avail
 from .utils import format_host_for_url, is_valid_ipv6_address, peft_config_to_dict, resolve_hostname
 
 if is_vllm_available():
-    from vllm.distributed.device_communicators.pynccl import PyNcclCommunicator
+    from vllm.distributed.device_communicators.pymccl import PyNcclCommunicator
     from vllm.distributed.utils import StatelessProcessGroup
 
     if is_vllm_ascend_available():
@@ -76,7 +76,7 @@ class VLLMClient:
         else:
             raise ValueError('group_port must be int or list of length num_servers')
 
-        self.pynccl_comms = []
+        self.pymccl_comms = []
         self.check_server(connection_timeout)
 
     def check_server(self, total_timeout: float = 0.0, retry_interval: float = 2.0):
@@ -180,7 +180,7 @@ class VLLMClient:
         return [res for server_results in results for res in server_results]
 
     def init_communicator(self, device: Union[int, str] = 0):
-        self.pynccl_comms = []
+        self.pymccl_comms = []
         for i in range(self.num_servers):
             response = self.sessions[i].get(f'{self.base_urls[i]}/get_world_size/')
             if response.status_code != 200:
@@ -206,7 +206,7 @@ class VLLMClient:
             pg = StatelessProcessGroup.create(
                 host=self.hosts[i], port=self.group_ports[i], rank=rank, world_size=world_size)
             comm = PyNcclCommunicator(pg, device=device)
-            self.pynccl_comms.append(comm)
+            self.pymccl_comms.append(comm)
 
         atexit.register(self.close_communicator)
 
@@ -230,13 +230,13 @@ class VLLMClient:
                     raise Exception(f'Server {i} update failed: {response.text}')
 
                 synchronize()
-                self.pynccl_comms[i].broadcast(
+                self.pymccl_comms[i].broadcast(
                     weights,
-                    src=self.pynccl_comms[i].rank,
+                    src=self.pymccl_comms[i].rank,
                     stream=getattr(get_torch_device(), 'current_stream', lambda: None)())
 
                 synchronize()
-                self.pynccl_comms[i].group.barrier()
+                self.pymccl_comms[i].group.barrier()
             except Exception as e:
                 errors[i] = e
 
@@ -281,12 +281,12 @@ class VLLMClient:
                     raise Exception(f'Server {i} update adapter failed: {response.text}')
 
                 synchronize()
-                self.pynccl_comms[i].broadcast(
+                self.pymccl_comms[i].broadcast(
                     flattened_tensor,
-                    src=self.pynccl_comms[i].rank,
+                    src=self.pymccl_comms[i].rank,
                     stream=getattr(get_torch_device(), 'current_stream', lambda: None)())
                 synchronize()
-                self.pynccl_comms[i].group.barrier()
+                self.pymccl_comms[i].group.barrier()
             except Exception as e:
                 errors[i] = e
 
@@ -345,12 +345,12 @@ class VLLMClient:
                 # Broadcast each tensor individually
                 synchronize()
                 for name, param in lora_params.items():
-                    self.pynccl_comms[i].broadcast(
+                    self.pymccl_comms[i].broadcast(
                         param,
-                        src=self.pynccl_comms[i].rank,
+                        src=self.pymccl_comms[i].rank,
                         stream=getattr(get_torch_device(), 'current_stream', lambda: None)())
                 synchronize()
-                self.pynccl_comms[i].group.barrier()
+                self.pymccl_comms[i].group.barrier()
             except Exception as e:
                 errors[i] = e
 
@@ -388,12 +388,12 @@ class VLLMClient:
                     raise Exception(f'Server {i} update flattened params failed: {response.text}')
 
                 synchronize()
-                self.pynccl_comms[i].broadcast(
+                self.pymccl_comms[i].broadcast(
                     flattened_tensor,
-                    src=self.pynccl_comms[i].rank,
+                    src=self.pymccl_comms[i].rank,
                     stream=getattr(get_torch_device(), 'current_stream', lambda: None)())
                 synchronize()
-                self.pynccl_comms[i].group.barrier()
+                self.pymccl_comms[i].group.barrier()
             except Exception as e:
                 errors[i] = e
 

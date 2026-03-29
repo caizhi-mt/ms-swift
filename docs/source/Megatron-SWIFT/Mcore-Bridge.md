@@ -19,12 +19,12 @@ Mcore-Bridge 兼容 Dense/MoE/多模态等多种模型架构。训练完成后�
 以下为多模态模型Qwen3-VL模型训练的例子:
 ```shell
 # 2 * 76GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen3-VL-8B-Instruct \
     --save_safetensors true \
@@ -59,11 +59,11 @@ megatron sft \
 
 然后我们对验证集部分进行推理：
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model megatron_output/Qwen3-VL-8B-Instruct/vx-xxx/checkpoint-xxx \
     --load_data_args true \
@@ -75,8 +75,8 @@ swift infer \
 
 ```shell
 # 8 * 76GiB, 3s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
 megatron sft \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -119,7 +119,7 @@ megatron sft \
 
 对训练后的权重进行推理：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model megatron_output/Qwen3-30B-A3B-Instruct-2507/vx-xxx/checkpoint-xxx \
     --stream true \
@@ -136,9 +136,9 @@ Mcore-Bridge除了支持全参数的导入导出，还支持单独对LoRA增量�
 - 注意：（transformers<5.0的情况）由于transformers和Megatron模型专家结构并不一定一致（例如transformers的Qwen3-VL-Moe的专家部分并不是Linear实现，而是Parameters），因此部分模型无法转换LoRA增量权重（若Qwen3-VL-Moe只设置linear_proj和linear_qkv训练LoRA也支持转换）。但大多数的模型支持LoRA转换，例如：Qwen3-Moe，Qwen3-Omni-Moe，GLM4.5-V等。
 ```shell
 # 50GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
     --save_safetensors true \
@@ -184,7 +184,7 @@ megatron sft \
 
 对导出的LoRA权重进行推理：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
     --adapters megatron_output/Qwen3-30B-A3B-Instruct-2507/vx-xxx/checkpoint-xxx \
@@ -201,7 +201,7 @@ Mcore-Bridge除了支持在训练中进行safetensors的转换和保存，也支
 全参数权重：
 ```shell
 # safetensors -> torch_dist
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -215,7 +215,7 @@ megatron export \
 
 ```shell
 # torch_dist -> safetensors
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --mcore_model Qwen3-30B-A3B-Instruct-2507-mcore \
@@ -232,7 +232,7 @@ LoRA权重：
 # torch_dist -> safetensors
 # 若你需要进行merge-lora，并测试merge-lora后的精度对齐，你只需要设置`--merge_lora true`即可
 # 你也可以将`--model safetensors-path`修改为`--mcore_model torch-dist-path`。这两种方式是等价的，mcore-bridge会自动处理。
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -248,7 +248,7 @@ megatron export \
 
 ```shell
 # safetensors -> torch_dist
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -265,7 +265,7 @@ megatron export \
 Merge-LoRA:
 ```shell
 # torch_dist -> torch_dist
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 megatron export \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
@@ -281,7 +281,7 @@ megatron export \
 
 ## 使用代码
 
-你需要创建以下文件（test.py），然后运行`CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 test.py`。以下为使用Mcore-Bridge进行权重加载、导出、保存的示例代码。
+你需要创建以下文件（test.py），然后运行`MUSA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 test.py`。以下为使用Mcore-Bridge进行权重加载、导出、保存的示例代码。
 
 ```python
 import torch
@@ -310,7 +310,7 @@ bridge.save_weights(mg_models, 'output/Qwen3-4B-Instruct-2507-new')
 
 推理新产生的权重：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model output/Qwen3-4B-Instruct-2507-new \
     --model_type qwen3 \
@@ -318,7 +318,7 @@ swift infer \
     --stream true
 ```
 
-LoRA权重的加载、导出和存储同理，运行`CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc_per_node=4 test.py`
+LoRA权重的加载、导出和存储同理，运行`MUSA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc_per_node=4 test.py`
 ```python
 import torch
 
@@ -354,7 +354,7 @@ bridge.save_weights(mg_models, 'output/Qwen3-30B-A3B-Instruct-2507-lora', is_pef
 
 推理新产生的权重：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model Qwen/Qwen3-30B-A3B-Instruct-2507 \
     --adapters output/Qwen3-30B-A3B-Instruct-2507-lora \

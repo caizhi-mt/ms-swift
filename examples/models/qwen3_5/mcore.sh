@@ -1,8 +1,8 @@
 # 4 * 40GiB
 
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -56,8 +56,8 @@ megatron sft \
     --model_name swift-robot
 
 
-# PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-# CUDA_VISIBLE_DEVICES=0,1,2,3 \
+# PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+# MUSA_VISIBLE_DEVICES=0,1,2,3 \
 # MAX_PIXELS=1003520 \
 # VIDEO_MAX_PIXELS=50176 \
 # FPS_MAX_FRAMES=12 \

@@ -129,5 +129,5 @@ tuner是指附加在模型上的额外结构部分，用于减少训练参数量
 
   - 返回值：训练参数信息，格式如下：
     ```text
-    trainable params: 100M || all params: 1000M || trainable%: 10.00% || cuda memory: 10GiB.
+    trainable params: 100M || all params: 1000M || trainable%: 10.00% || musa memory: 10GiB.
     ```

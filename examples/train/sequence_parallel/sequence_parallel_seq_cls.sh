@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 NPROC_PER_NODE=2 \
 swift sft \
     --model Qwen/Qwen2.5-0.5B \

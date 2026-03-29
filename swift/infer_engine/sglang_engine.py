@@ -45,7 +45,7 @@ class SglangEngine(InferEngine):
         enable_ep_moe: bool = False,
         mem_fraction_static: Optional[float] = None,
         context_length: Optional[int] = None,
-        disable_cuda_graph: bool = False,
+        disable_musa_graph: bool = False,
         quantization: Optional[str] = None,
         task_type: Optional[str] = None,
         kv_cache_dtype: str = 'auto',
@@ -71,7 +71,7 @@ class SglangEngine(InferEngine):
         self.enable_ep_moe = enable_ep_moe
         self.mem_fraction_static = mem_fraction_static
         self.context_length = context_length
-        self.disable_cuda_graph = disable_cuda_graph
+        self.disable_musa_graph = disable_musa_graph
         self.quantization = quantization
         self.task_type = task_type
         self.kv_cache_dtype = kv_cache_dtype
@@ -132,7 +132,7 @@ class SglangEngine(InferEngine):
             ep_size=self.ep_size,
             mem_fraction_static=self.mem_fraction_static,
             context_length=self.context_length,
-            disable_cuda_graph=self.disable_cuda_graph,
+            disable_musa_graph=self.disable_musa_graph,
             quantization=self.quantization,
             kv_cache_dtype=self.kv_cache_dtype,
             enable_dp_attention=self.enable_dp_attention,

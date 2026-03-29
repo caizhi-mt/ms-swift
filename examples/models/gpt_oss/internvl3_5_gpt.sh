@@ -1,9 +1,9 @@
 # mcore>=0.15
 # 8 * 80GiB 4s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 OMP_NUM_THREADS=14 \
 NPROC_PER_NODE=8 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 megatron sft \
     --model OpenGVLab/InternVL3_5-GPT-OSS-20B-A4B-Preview \
     --save_safetensors true \
@@ -42,7 +42,7 @@ megatron sft \
     --padding_free false \
     --attention_backend unfused
 
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift infer \
 #     --model megatron_output/InternVL3_5-GPT-OSS-20B-A4B-Preview/vx-xxx/checkpoint-xxx \
 #     --stream true \

@@ -232,9 +232,9 @@ class DistributedTestCase(unittest.TestCase):
         >>>     init_dist(launcher='pytorch')
         >>>     rank = dist.get_rank()
         >>>     if rank == 0:
-        >>>         value = torch.tensor(1.0).cuda()
+        >>>         value = torch.tensor(1.0).musa()
         >>>     else:
-        >>>         value = torch.tensor(2.0).cuda()
+        >>>         value = torch.tensor(2.0).musa()
         >>>     dist.all_reduce(value)
         >>>     return value.cpu().numpy()
 

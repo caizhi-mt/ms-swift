@@ -74,7 +74,7 @@ ms-swift使用了分层式的设计思想，用户可以使用命令行界面、
 - 在使用`swift sft`通过LoRA技术微调base模型为chat模型时，有时需要手动设置模板。通过添加`--template default`参数来避免base模型因未见过对话模板中的特殊字符而无法正常停止的情况。具体参考[这里](https://github.com/modelscope/ms-swift/tree/main/examples/train/base_to_chat)。
 - 如果需要在**断网**环境下进行训练，请设置`--model <model_dir>`和`--check_model false`。如果对应的模型需要`git clone`github的仓库，例如`deepseek-ai/Janus-Pro-7B`，请设置手动下载仓库，并设置`--local_repo_path <repo_dir>`。具体参数含义请参考[命令行参数文档](Command-line-parameters.md)。
 - 无法对QLoRA训练的模型进行Merge LoRA，因此不建议使用QLoRA进行微调，无法在推理和部署时使用vLLM/Sglang/LMDeploy进行推理加速。建议使用LoRA/全参数进行微调，合并为完整权重后再使用GPTQ/AWQ/BNB进行[量化](https://github.com/modelscope/ms-swift/tree/main/examples/export/quantize)。
-- 如果使用NPU进行训练，只需要将shell中的`CUDA_VISIBLE_DEVICES`修改为`ASCEND_RT_VISIBLE_DEVICES`。
+- 如果使用NPU进行训练，只需要将shell中的`MUSA_VISIBLE_DEVICES`修改为`ASCEND_RT_VISIBLE_DEVICES`。
 - SWIFT默认在训练时设置`--gradient_checkpointing true`来节约显存，这会略微降低训练速度。
 - 若使用DDP进行训练，出现报错：`RuntimeError: Expected to mark a variable ready only once.`，请额外设置参数`--gradient_checkpointing_kwargs '{"use_reentrant": false}'`或者使用DeepSpeed进行训练。
 - 如果要使用deepspeed，你需要安装deepspeed：`pip install deepspeed -U`。使用deepspeed可以节约显存，但会略微降低训练速度。
@@ -115,7 +115,7 @@ result = sft_main(SftArguments(
 
 使用CLI对LoRA训练的checkpoint进行推理：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --infer_backend transformers \
@@ -130,7 +130,7 @@ swift infer \
 
 对数据集中的验证集进行批量推理：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --infer_backend transformers \
@@ -145,7 +145,7 @@ swift infer \
 
 若想对额外的测试集进行推理，而不使用训练时的验证集，使用`--val_dataset <dataset_path>`进行推理：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --infer_backend transformers \
@@ -160,7 +160,7 @@ swift infer \
 
 ```python
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 from swift.infer_engine import TransformersEngine, RequestConfig, InferRequest
 from swift import get_model_processor, get_template
@@ -197,7 +197,7 @@ print(f'response1: {resp_list[1].choices[0].message.content}')
 多模态模型的LoRA推理示例如下：
 ```python
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 from swift.infer_engine import TransformersEngine, RequestConfig, InferRequest
 from swift import get_model_processor, get_template
@@ -255,7 +255,7 @@ print(f'args.default_system: {args.system}')
 使用以下命令启动部署服务端。如果权重使用全参数训练，请使用`--model`替代`--adapters`指定训练的checkpoint目录。你可以参考[推理和部署文档](./Inference-and-deployment.md#部署)介绍的客户端调用方式：curl、openai库和swift客户端进行调用。
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift deploy \
     --adapters output/vx-xxx/checkpoint-xxx \
     --infer_backend transformers \
@@ -271,7 +271,7 @@ swift deploy \
 
 我们预先训练了2个基模型为`Qwen/Qwen2.5-7B-Instruct`的不同自我认知LoRA增量权重（可以直接跑通），我们可以在[args.json](https://modelscope.cn/models/swift/test_lora/file/view/master)中找到相关信息。你需要在部署时修改`--adapters`指定训练好的LoRA权重本地路径即可。
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift deploy \
     --adapters lora1=swift/test_lora lora2=swift/test_lora2 \
     --infer_backend vllm \

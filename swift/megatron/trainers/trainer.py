@@ -86,7 +86,7 @@ class MegatronTrainer(BaseMegatronTrainer):
 
     def _compute_channel_loss(self, losses, loss_mask, channels, packed_seq_params=None):
         args = self.args
-        metrics = defaultdict(lambda: torch.tensor([0.0, 0.0], dtype=torch.float32, device=torch.cuda.current_device()))
+        metrics = defaultdict(lambda: torch.tensor([0.0, 0.0], dtype=torch.float32, device=torch.musa.current_device()))
         if args.padding_free:
             num_samples = packed_seq_params.num_samples
             cu_seqlens = packed_seq_params.cu_seqlens_q[:num_samples + 1] // args.context_parallel_size

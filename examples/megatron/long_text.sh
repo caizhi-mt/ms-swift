@@ -1,9 +1,9 @@
 # Env: 4 * A100
 # Max Length: 32K
 # GPU Memory: 4 * 50GB, Training Speed 23s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 megatron sft \
     --model Qwen/Qwen2.5-7B \
     --save_safetensors true \

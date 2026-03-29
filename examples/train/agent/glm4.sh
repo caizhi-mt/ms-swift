@@ -1,6 +1,6 @@
 # 4 * 80GiB
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model ZhipuAI/GLM-4-9B-0414 \
     --tuner_type full \

@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=0,1,2,3
+export MUSA_VISIBLE_DEVICES=0,1,2,3
 export NNODES=2
 export NODE_RANK=1
 export MASTER_ADDR=xxx.xxx.xxx.xxx

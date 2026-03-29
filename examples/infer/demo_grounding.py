@@ -2,7 +2,7 @@ import os
 import re
 from typing import Literal
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 os.environ['MAX_PIXELS'] = '1003520'
 
 

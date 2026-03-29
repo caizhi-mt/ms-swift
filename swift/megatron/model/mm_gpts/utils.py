@@ -63,7 +63,7 @@ class HuggingFaceModule(_HuggingFaceModule, ABC):
             setattr(self, mg_prefix, deep_getattr(model, hf_prefix))
         self._hf_model = [model]
         self.prepare_model(model)
-        self.to('cuda')
+        self.to('musa')
 
     def prepare_model(self, hf_model):
         pass

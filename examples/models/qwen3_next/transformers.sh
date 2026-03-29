@@ -1,6 +1,6 @@
 # 4 * 60GiB
 # Note: Due to linear attention, this model currently does not support padding_free and packing.
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model Qwen/Qwen3-Next-80B-A3B-Instruct \
     --tuner_type lora \

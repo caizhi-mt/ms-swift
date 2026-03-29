@@ -171,19 +171,19 @@ Training and inference resources are separated, with a dedicated inference serve
 
 Use the `swift rollout` command to deploy the vLLM server (currently only supports vLLM backend):
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift rollout \
   --model Qwen/Qwen2.5-VL-7B-Instruct \
   --vllm_tensor_parallel_size 2 \
   --vllm_data_parallel_size 1
 
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 swift rollout \
   --model Qwen/Qwen2.5-VL-7B-Instruct \
   --vllm_tensor_parallel_size 2 \
   --vllm_data_parallel_size 1
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift rollout \
   --model Qwen/Qwen2.5-VL-7B-Instruct \
   --vllm_tensor_parallel_size 2 \

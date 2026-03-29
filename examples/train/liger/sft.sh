@@ -4,7 +4,7 @@
 # Not using use_liger_kernel and packing: 4 * 52GB, 3 hours 30 minutes
 
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model Qwen/Qwen2.5-7B \
     --tuner_type full \

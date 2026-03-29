@@ -114,7 +114,7 @@ To enable this mode, add the use_gym_env argument to the rollout command, which 
 We also provide a multi-turn planner example compatible with GYM; see the GymScheduler class in the [built-in multi-turn scheduler implementation](https://github.com/modelscope/ms-swift/blob/main/swift/rollout/multi_turn.py)
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift rollout \
     --model xxx \
     --use_gym_env true \

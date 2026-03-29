@@ -119,7 +119,7 @@ class TrainArgumentsMixin:
 
         use_flash_ckpt (bool): Whether to enable DLRover Flash Checkpoint. When enabled, weights are first saved to
             shared memory and then asynchronously persisted to disk. Currently does not support the safetensors format.
-            It is recommended to use this with `PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"` to prevent CUDA OOM
+            It is recommended to use this with `PYTORCH_MUSA_ALLOC_CONF="expandable_segments:True"` to prevent MUSA OOM
             errors during training. Defaults to False.
     """
     per_device_train_batch_size: int = 1

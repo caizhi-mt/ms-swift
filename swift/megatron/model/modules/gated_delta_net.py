@@ -48,7 +48,7 @@ class GatedDeltaNet(_GatedDeltaNet):
             attention_bias (Optional[Tensor]): Attention bias.
             packed_seq_params (Optional[PackedSeqparams]): Parameters used for THD format.
             sequence_len_offset (Optional[int]): Sequence length offset used for
-                inference CUDA graphs.
+                inference MUSA graphs.
 
         Return:
             (Tuple[Tensor, Tensor]) GDN output and bias.

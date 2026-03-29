@@ -19,12 +19,12 @@ SWIFT支持AWQ、GPTQ、FP8、BNB模型的量化导出。其中使用AWQ、GPTQ�
 除SWIFT安装外，需要安装以下额外依赖：
 ```shell
 # 使用awq量化:
-# autoawq和cuda版本有对应关系，请按照`https://github.com/casper-hansen/AutoAWQ`选择版本
+# autoawq和musa版本有对应关系，请按照`https://github.com/casper-hansen/AutoAWQ`选择版本
 # 如果出现torch依赖冲突，请额外增加指令`--no-deps`
 pip install autoawq -U
 
 # 使用gptq量化:
-# auto_gptq和cuda版本有对应关系，请按照`https://github.com/PanQiWei/AutoGPTQ#quick-installation`选择版本
+# auto_gptq和musa版本有对应关系，请按照`https://github.com/PanQiWei/AutoGPTQ#quick-installation`选择版本
 pip install auto_gptq optimum -U
 
 # 使用gptq v2量化:

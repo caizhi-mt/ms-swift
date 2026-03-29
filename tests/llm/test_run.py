@@ -1,6 +1,6 @@
 if __name__ == '__main__':
     import os
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    os.environ['MUSA_VISIBLE_DEVICES'] = '0'
     os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
 
 import os
@@ -45,7 +45,7 @@ class TestRun(unittest.TestCase):
         if not __name__ == '__main__':
             # ignore citest error in github
             return
-        torch.cuda.empty_cache()
+        torch.musa.empty_cache()
         output = sft_main(
             SftArguments(
                 model='Qwen/Qwen1.5-0.5B',
@@ -56,7 +56,7 @@ class TestRun(unittest.TestCase):
                 max_steps=12,
                 **kwargs))
         last_model_checkpoint = output['last_model_checkpoint']
-        torch.cuda.empty_cache()
+        torch.musa.empty_cache()
         result = infer_main(InferArguments(model=last_model_checkpoint, load_data_args=True, val_dataset_sample=2))
         assert len(result[0]['response']) < 20
 
@@ -64,7 +64,7 @@ class TestRun(unittest.TestCase):
         if not __name__ == '__main__':
             # ignore citest error in github
             return
-        torch.cuda.empty_cache()
+        torch.musa.empty_cache()
         train_dataset_fnames = [
             'alpaca.csv', 'chatml.jsonl', 'swift_pre.jsonl', 'swift_single.csv', 'swift_multi.jsonl',
             'swift_multi.json#2'
@@ -78,7 +78,7 @@ class TestRun(unittest.TestCase):
             SftArguments(
                 model='Qwen/Qwen1.5-0.5B-Chat-GPTQ-Int4', tuner_type='lora', dataset=dataset, use_hf=True, **kwargs))
         last_model_checkpoint = output['last_model_checkpoint']
-        torch.cuda.empty_cache()
+        torch.musa.empty_cache()
         infer_main(InferArguments(adapters=last_model_checkpoint, load_data_args=True, val_dataset_sample=2))
 
     @unittest.skip('avoid ci error')
@@ -119,7 +119,7 @@ class TestRun(unittest.TestCase):
                 include_num_input_tokens_seen=True,
                 gradient_checkpointing=True,
                 **kwargs)
-            torch.cuda.empty_cache()
+            torch.musa.empty_cache()
             output = sft_main(sft_args)
             print(output)
             best_model_checkpoint = output['best_model_checkpoint']
@@ -133,7 +133,7 @@ class TestRun(unittest.TestCase):
                     }[quant_bits],
                     load_data_args=NO_EVAL_HUMAN,
                     val_dataset_sample=5)
-                torch.cuda.empty_cache()
+                torch.musa.empty_cache()
                 result = infer_main(infer_args)
                 print(result)
         # if __name__ == '__main__':
@@ -158,7 +158,7 @@ class TestRun(unittest.TestCase):
                 lazy_tokenize=True,
                 disable_tqdm=True,
                 **kwargs)
-            torch.cuda.empty_cache()
+            torch.musa.empty_cache()
             output = sft_main(sft_args)
             print(output)
             best_model_checkpoint = output['best_model_checkpoint']
@@ -171,7 +171,7 @@ class TestRun(unittest.TestCase):
                     'Qwen/Qwen-Audio-Chat': False
                 }[model],
                 val_dataset_sample=5)
-            torch.cuda.empty_cache()
+            torch.musa.empty_cache()
             result = infer_main(infer_args)
             print(result)
 
@@ -206,7 +206,7 @@ class TestRun(unittest.TestCase):
                 model_author='魔搭',
                 **train_kwargs)
 
-            torch.cuda.empty_cache()
+            torch.musa.empty_cache()
             result = sft_main(sft_args)
             best_model_checkpoint = result['best_model_checkpoint']
             resume_from_checkpoint = result['last_model_checkpoint']
@@ -224,14 +224,14 @@ class TestRun(unittest.TestCase):
                 merge_lora=load_args,
                 val_dataset=[os.path.join(folder, fname) for fname in val_dataset_fnames],
                 **infer_kwargs)
-            torch.cuda.empty_cache()
+            torch.musa.empty_cache()
             infer_main(infer_args)
 
     def test_rlhf(self):
         if not __name__ == '__main__':
             # ignore citest error in github
             return
-        torch.cuda.empty_cache()
+        torch.musa.empty_cache()
         # llm rlhf
         #
         rlhf_types = ['dpo', 'orpo', 'simpo', 'kto', 'cpo', 'rm', 'ppo']
@@ -255,7 +255,7 @@ class TestRun(unittest.TestCase):
             else:
                 model_checkpoint = output['best_model_checkpoint']
 
-            torch.cuda.empty_cache()
+            torch.musa.empty_cache()
             infer_main(InferArguments(adapters=model_checkpoint, load_data_args=True))
 
         # mllm rlhf
@@ -276,7 +276,7 @@ class TestRun(unittest.TestCase):
                         dataset_num_proc=16,
                         **kwargs))
                 best_model_checkpoint = output['best_model_checkpoint']
-                torch.cuda.empty_cache()
+                torch.musa.empty_cache()
                 infer_main(InferArguments(adapters=best_model_checkpoint, load_data_args=True, val_dataset_sample=2))
 
     def test_loss_matching(self):
@@ -287,7 +287,7 @@ class TestRun(unittest.TestCase):
         losses = []
         for use_swift_lora in [False, True]:
             bool_var = use_swift_lora
-            torch.cuda.empty_cache()
+            torch.musa.empty_cache()
             output = sft_main([
                 '--model', 'Qwen/Qwen-7B-Chat', '--save_steps', '5', '--dataset',
                 'AI-ModelScope/leetcode-solutions-python#200', '--output_dir', output_dir, '--gradient_checkpointing',
@@ -302,7 +302,7 @@ class TestRun(unittest.TestCase):
                 val_dataset_sample = 2
             else:
                 val_dataset_sample = -1
-            torch.cuda.empty_cache()
+            torch.musa.empty_cache()
             infer_main([
                 '--adapters', best_model_checkpoint, '--val_dataset_sample',
                 str(val_dataset_sample), '--max_new_tokens', '100', '--attn_impl', 'eager', '--merge_lora',
@@ -327,7 +327,7 @@ class TestRun(unittest.TestCase):
         os.environ['PAI_OUTPUT_TENSORBOARD'] = tensorboard_dir
         sft_json = os.path.join(folder, 'sft.json')
         infer_json = os.path.join(folder, 'infer.json')
-        torch.cuda.empty_cache()
+        torch.musa.empty_cache()
         output = sft_main([sft_json])
         print()
         infer_args = {
@@ -338,7 +338,7 @@ class TestRun(unittest.TestCase):
         import json
         with open(infer_json, 'w') as f:
             json.dump(infer_args, f, ensure_ascii=False, indent=4)
-        torch.cuda.empty_cache()
+        torch.musa.empty_cache()
         infer_main([infer_json])
         os.environ.pop('PAI_TRAINING_JOB_ID')
 

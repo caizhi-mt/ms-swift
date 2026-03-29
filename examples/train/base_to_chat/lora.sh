@@ -1,7 +1,7 @@
 # Use `--template default`
 nproc_per_node=2
 
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 MASTER_PORT=29501 \
 NPROC_PER_NODE=$nproc_per_node \
 swift sft \

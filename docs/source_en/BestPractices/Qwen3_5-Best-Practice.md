@@ -39,7 +39,7 @@ Using ms-swift's `TransformersEngine` for inference:
 ```python
 import os
 # os.environ['SWIFT_DEBUG'] = '1'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 os.environ['IMAGE_MAX_TOKEN_NUM'] = '1024'
 os.environ['VIDEO_MAX_TOKEN_NUM'] = '128'
 os.environ['FPS_MAX_FRAMES'] = '16'
@@ -75,7 +75,7 @@ Using command line for inference:
 IMAGE_MAX_TOKEN_NUM=1024 \
 VIDEO_MAX_TOKEN_NUM=128 \
 FPS_MAX_FRAMES=16 \
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --model Qwen/Qwen3.5-4B \
     --enable_thinking false \
@@ -108,12 +108,12 @@ The fine-tuning script is as follows:
 
 ```shell
 # 4 * 20GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model Qwen/Qwen3.5-4B \
     --tuner_type lora \
@@ -152,8 +152,8 @@ swift sft \
 After training, use the following script to perform inference on the validation set:
 
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -186,7 +186,7 @@ e = \sum _ { k = 0 } ^ { \infty } \frac { 1 } { k ! }
 ```python
 import os
 # os.environ['SWIFT_DEBUG'] = '1'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 os.environ['IMAGE_MAX_TOKEN_NUM'] = '1024'
 os.environ['VIDEO_MAX_TOKEN_NUM'] = '128'
 os.environ['FPS_MAX_FRAMES'] = '16'
@@ -230,9 +230,9 @@ Qwen3.5-35B-A3B Megatron training. For environment preparation, please refer to 
 
 ```shell
 # 4 * 40GiB
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -290,8 +290,8 @@ megatron sft \
 After training, use the following script to perform inference on the validation set:
 
 ```shell
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -325,7 +325,7 @@ Full-parameter training with GRPO, using `gsm8k_accuracy` and `gsm8k_format` as 
 ```shell
 SYSTEM_PROMPT="""You are a helpful math assistant. Solve the problem step by step and put your final answer within \\boxed{}."""
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 swift rlhf \
     --rlhf_type grpo \
@@ -371,7 +371,7 @@ swift rlhf \
 Evaluate the checkpoints:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift eval \
+MUSA_VISIBLE_DEVICES=0 swift eval \
     --model output/Qwen3.5-2B/vxx-xxx-xxx/checkpoint-xx \
     --enable_thinking false \
     --eval_dataset gsm8k \
@@ -397,9 +397,9 @@ GRPO LoRA training for Qwen3.5-35B-A3B MoE model using the Megatron backend, tra
 ```shell
 SYSTEM_PROMPT="""You are a helpful math assistant. Solve the problem step by step and put your final answer within \\boxed{}."""
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 megatron rlhf \
     --rlhf_type grpo \
     --model Qwen/Qwen3.5-35B-A3B \
@@ -462,7 +462,7 @@ megatron rlhf \
 Evaluate on AIME-2025 and MATH-500:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0,1 swift eval \
+MUSA_VISIBLE_DEVICES=0,1 swift eval \
     --model <checkpoint-merged-path> \
     --enable_thinking false \
     --eval_dataset aime25 math_500 \
@@ -487,7 +487,7 @@ Evaluation results on AIME-2025 and MATH-500:
 LoRA training with GKD (Guided Knowledge Distillation), using Qwen3.5-9B as the teacher model. First, launch the teacher server with vLLM (alternatively, use the `--teacher_model` parameter to load the model directly):
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 vllm serve Qwen/Qwen3.5-9B \
     --port 8000 \
     --tensor-parallel-size 1 \
@@ -500,7 +500,7 @@ Then start GKD training on the remaining GPUs:
 
 ```shell
 NPROC_PER_NODE=3 \
-CUDA_VISIBLE_DEVICES=1,2,3 \
+MUSA_VISIBLE_DEVICES=1,2,3 \
 swift rlhf \
     --rlhf_type gkd \
     --model Qwen/Qwen3.5-2B \
@@ -537,7 +537,7 @@ swift rlhf \
 Evaluate the checkpoints:
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift eval \
+MUSA_VISIBLE_DEVICES=0 swift eval \
     --model Qwen/Qwen3.5-2B \
     --adapters output/Qwen3.5-2B/vxx-xxx-xxx/checkpoint-xx \
     --merge_lora true \

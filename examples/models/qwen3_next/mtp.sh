@@ -1,8 +1,8 @@
 # 8 * 60GiB, 8s/it
 
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=8 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 megatron sft \
     --model Qwen/Qwen3-Next-80B-A3B-Instruct \
     --save_safetensors true \
@@ -44,7 +44,7 @@ megatron sft \
     --model_name swift-robot
 
 
-# CUDA_VISIBLE_DEVICES=0,1,2,3 \
+# MUSA_VISIBLE_DEVICES=0,1,2,3 \
 # swift infer \
 #     --model megatron_output/Qwen3-Next-80B-A3B-Instruct/vx-xxx/checkpoint-xxx-merged \
 #     --vllm_tensor_parallel_size 4 \

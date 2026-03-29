@@ -1,5 +1,5 @@
 # 2 * 76GiB
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 MAX_PIXELS=1003520 \
 swift sft \
     --model Qwen/Qwen2.5-VL-72B-Instruct \

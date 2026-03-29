@@ -1,8 +1,8 @@
 # 4 * 66GiB, 5s/it
 # Fine-tuning GLM-4.6V requires Transformers 5.0, or you can switch the model to 'ZhipuAI/GLM-4.5V'.
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 megatron sft \
     --model ZhipuAI/GLM-4.6V \
     --save_safetensors true \

@@ -1,7 +1,7 @@
 # see rm_plugin example in swift/rewards/rm_plugin.py
 # register customized plugin in external_plugins file
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
 swift rlhf \
     --rlhf_type grpo \

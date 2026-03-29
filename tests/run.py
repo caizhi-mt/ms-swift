@@ -132,7 +132,7 @@ def run_command_with_popen(cmd):
 def async_run_command_with_popen(cmd, device_id):
     logger.info('Worker id: %s args: %s' % (device_id, cmd))
     env = os.environ.copy()
-    env['CUDA_VISIBLE_DEVICES'] = '%s' % device_id
+    env['MUSA_VISIBLE_DEVICES'] = '%s' % device_id
     sub_process = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
@@ -430,7 +430,7 @@ class TimeCostTextTestResult(TextTestResult):
         test.time_cost = (test.stop_time - test.start_time).total_seconds()
         self.stream.writeln('Test case: %s stop at: %s, cost time: %s(seconds)' %
                             (test.test_full_name, test.stop_time, test.time_cost))
-        if torch.cuda.is_available() and test.time_cost > 5.0:  # print nvidia-smi
+        if torch.musa.is_available() and test.time_cost > 5.0:  # print nvidia-smi
             cmd = ['nvidia-smi']
             run_command_with_popen(cmd)
         super(TimeCostTextTestResult, self).stopTest(test)

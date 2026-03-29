@@ -97,7 +97,7 @@ class ExpManager:
     def assert_gpu_not_overlap(self):
         all_gpus = set()
         for exp in self.exps:
-            gpus = exp.runtime['env']['CUDA_VISIBLE_DEVICES'].split(',')
+            gpus = exp.runtime['env']['MUSA_VISIBLE_DEVICES'].split(',')
             if all_gpus & set(gpus):
                 raise ValueError(f'GPU overlap: {self.exps}!')
             all_gpus.update(gpus)
@@ -153,7 +153,7 @@ class ExpManager:
             allocated = self._find_free_gpu(int(gpu))
             assert allocated, 'No free gpu for now!'
             allocated = [str(gpu) for gpu in allocated]
-            env['CUDA_VISIBLE_DEVICES'] = ','.join(allocated)
+            env['MUSA_VISIBLE_DEVICES'] = ','.join(allocated)
 
         best_model_checkpoint = exp.record.get('best_model_checkpoint')
         eval_dataset = exp.eval_dataset
@@ -179,7 +179,7 @@ class ExpManager:
             allocated = self._find_free_gpu(int(gpu))
             assert allocated, 'No free gpu for now!'
             allocated = [str(gpu) for gpu in allocated]
-            env['CUDA_VISIBLE_DEVICES'] = ','.join(allocated)
+            env['MUSA_VISIBLE_DEVICES'] = ','.join(allocated)
         if int(exp.requirements.get('ddp', 1)) > 1:
             env['NPROC_PER_NODE'] = exp.requirements.get('ddp')
             env['MASTER_PORT'] = str(find_free_port())

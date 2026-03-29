@@ -49,7 +49,7 @@ Example:
 model=your model path
 dataset=your dataset
 output= your output dir
-export CUDA_VISIBLE_DEVICES=0 # Set according to the actual GPU usage
+export MUSA_VISIBLE_DEVICES=0 # Set according to the actual GPU usage
 deepspeed_config_or_type=deepspeed type or configuration file path, e.g., zero1 or /xxx/ms-swift/swift/llm/ds_config/zero1.json
 
 dlrover-run --nnodes 1:$NODE_NUM --nproc_per_node=1  \

@@ -63,10 +63,10 @@ class SglangArguments:
             Defaults to None.
         sglang_context_length (Optional[int]): The maximum context length for the model. If None, the value from the
             model's `config.json` will be used. Defaults to None.
-        sglang_disable_cuda_graph (bool): Disable CUDA graph for inference. Defaults to False.
+        sglang_disable_musa_graph (bool): Disable MUSA graph for inference. Defaults to False.
         sglang_quantization (Optional[str]): The quantization method to use. Defaults to None.
         sglang_kv_cache_dtype (str): The data type for K/V cache storage. 'auto' will use the model's data type.
-            'fp8_e5m2' and 'fp8_e4m3' are available for CUDA 11.8 and later. Defaults to 'auto'.
+            'fp8_e5m2' and 'fp8_e4m3' are available for MUSA 11.8 and later. Defaults to 'auto'.
         sglang_enable_dp_attention (bool): Enables data parallelism for the attention mechanism and tensor parallelism
             for the feed-forward network (FFN). The data parallel size (dp_size) must equal the tensor parallel size
             (tp_size). Currently supported for DeepSeek-V2/3 and Qwen2/3 MoE models. Defaults to False.
@@ -88,7 +88,7 @@ class SglangArguments:
     sglang_enable_ep_moe: bool = False
     sglang_mem_fraction_static: Optional[float] = None
     sglang_context_length: Optional[int] = None
-    sglang_disable_cuda_graph: bool = False
+    sglang_disable_musa_graph: bool = False
     sglang_quantization: Optional[str] = None
     sglang_kv_cache_dtype: str = 'auto'
     sglang_enable_dp_attention: bool = False
@@ -109,7 +109,7 @@ class SglangArguments:
             'enable_ep_moe': self.sglang_enable_ep_moe,
             'mem_fraction_static': self.sglang_mem_fraction_static,
             'context_length': self.sglang_context_length,
-            'disable_cuda_graph': self.sglang_disable_cuda_graph,
+            'disable_musa_graph': self.sglang_disable_musa_graph,
             'quantization': self.sglang_quantization,
             'kv_cache_dtype': self.sglang_kv_cache_dtype,
             'enable_dp_attention': self.sglang_enable_dp_attention,

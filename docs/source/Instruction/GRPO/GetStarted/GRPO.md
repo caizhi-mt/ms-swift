@@ -171,19 +171,19 @@ GRPO 训练框架支持集成高性能推理引擎（如 vLLM）来加速采样�
 
 使用`swift rollout`命令部署vLLM 服务器, 现仅支持vLLM backend
 ```bash
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift rollout \
   --model Qwen/Qwen2.5-VL-7B-Instruct \
   --vllm_tensor_parallel_size 2 \
   --vllm_data_parallel_size 1
 
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 swift rollout \
   --model Qwen/Qwen2.5-VL-7B-Instruct \
   --vllm_tensor_parallel_size 2 \
   --vllm_data_parallel_size 1
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift rollout \
   --model Qwen/Qwen2.5-VL-7B-Instruct \
   --vllm_tensor_parallel_size 2 \

@@ -4,7 +4,7 @@
 nproc_per_node=4
 
 NPROC_PER_NODE=$nproc_per_node \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift pt \
     --model Qwen/Qwen2.5-7B \
     --tuner_type full \

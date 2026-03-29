@@ -20,7 +20,7 @@ To view the inference of a model fine-tuned with LoRA, please refer to the [Pre-
 **Full Parameter Model:**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift infer \
+MUSA_VISIBLE_DEVICES=0 swift infer \
     --model Qwen/Qwen2.5-7B-Instruct \
     --stream true \
     --infer_backend transformers \
@@ -30,7 +30,7 @@ CUDA_VISIBLE_DEVICES=0 swift infer \
 **LoRA Model:**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift infer \
+MUSA_VISIBLE_DEVICES=0 swift infer \
     --model Qwen/Qwen2.5-7B-Instruct \
     --adapters swift/test_lora \
     --stream true \
@@ -52,7 +52,7 @@ The above commands are for interactive command-line interface inference. After r
 **Multimodal Model**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \
@@ -84,7 +84,7 @@ A baby wearing glasses is sitting on a bed and reading a book. The baby is holdi
 **Dataset Inference:**
 
 ```
-CUDA_VISIBLE_DEVICES=0 swift infer \
+MUSA_VISIBLE_DEVICES=0 swift infer \
     --model Qwen/Qwen2.5-7B-Instruct \
     --stream true \
     --infer_backend transformers \
@@ -123,7 +123,7 @@ If you want to perform inference through a graphical interface, you can refer to
 
 ```python
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 
 from swift.infer_engine import TransformersEngine, RequestConfig, InferRequest
 model = 'Qwen/Qwen2.5-0.5B-Instruct'
@@ -149,7 +149,7 @@ print(f'response1: {resp_list[1].choices[0].message.content}')
 
 ```python
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0'
 os.environ['MAX_PIXELS'] = '1003520'
 os.environ['VIDEO_MAX_PIXELS'] = '50176'
 os.environ['FPS_MAX_FRAMES'] = '12'
@@ -196,7 +196,7 @@ This section primarily focuses on the deployment and invocation of multimodal mo
 **Server Deployment:**
 
 ```shell
-CUDA_VISIBLE_DEVICES=0 swift deploy \
+MUSA_VISIBLE_DEVICES=0 swift deploy \
     --model Qwen/Qwen2.5-7B-Instruct \
     --infer_backend vllm \
     --max_new_tokens 2048 \
@@ -221,7 +221,7 @@ curl http://localhost:8000/v1/chat/completions \
 
 ```shell
 # test env: pip install transformers==4.51.3 vllm==0.8.5.post1
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 MAX_PIXELS=1003520 \
 VIDEO_MAX_PIXELS=50176 \
 FPS_MAX_FRAMES=12 \

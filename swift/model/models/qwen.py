@@ -42,8 +42,8 @@ class QwenLoader(ModelLoader):
         model = super().get_model(model_dir, config, processor, model_kwargs)
         try:
             # fix mp+ddp bug
-            model.transformer.registered_causal_mask = model.transformer.registered_causal_mask.cuda()
-            logger.info('registered_causal_mask to cuda')
+            model.transformer.registered_causal_mask = model.transformer.registered_causal_mask.musa()
+            logger.info('registered_causal_mask to musa')
         except AttributeError:
             pass
         return model
@@ -210,7 +210,7 @@ class QwenVLLoader(QwenLoader):
         if n_gpu // local_world_size >= 4:
             model.transformer.visual.proj.data = model.transformer.visual.proj.to(
                 model.transformer.visual.ln_post.bias.device)
-        # fix images cuda:1 bug
+        # fix images musa:1 bug
         patch_fixed_device(model.transformer.visual, f'{device_type}:0')
         return model
 

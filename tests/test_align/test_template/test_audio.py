@@ -1,6 +1,6 @@
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0,1,2,3'
 
 
 def _infer_model(engine, system=None, messages=None, audios=None):

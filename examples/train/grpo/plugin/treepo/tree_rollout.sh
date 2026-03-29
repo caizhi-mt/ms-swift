@@ -7,7 +7,7 @@
 # For more details on tool invocation, dialogue termination criteria, and other logic, please refer to the TreeRolloutScheduler implementation.
 
 # First: Run swift rollout to deploy rollout server
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift rollout \
     --model Qwen/Qwen2.5-0.5B \
     --vllm_use_async_engine true \
@@ -17,7 +17,7 @@ swift rollout \
 
 
 # Second: Run swift rlhf to train GRPO model
-CUDA_VISIBLE_DEVICES=1 \
+MUSA_VISIBLE_DEVICES=1 \
 swift rlhf \
     --rlhf_type grpo \
     --model Qwen/Qwen2.5-0.5B \

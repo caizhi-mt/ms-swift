@@ -24,7 +24,7 @@ ValueError(f'assistant_message; {assistant_message}')
 ValueError: assistant_message: {'role' :'assistant', 'content': ''}
 ```
 ```shell
-CUDA_VISIBLE_DEVICES=0 NPROC_PER_NODE=1 MAX_PIXELS=1003520 swift sft --model Qwen/Qwen2.5-VL-7B-Instruct --tuner_type lora --dataset /mnt/workspace/data.json --deepspeed zero2 --max_length 16384
+MUSA_VISIBLE_DEVICES=0 NPROC_PER_NODE=1 MAX_PIXELS=1003520 swift sft --model Qwen/Qwen2.5-VL-7B-Instruct --tuner_type lora --dataset /mnt/workspace/data.json --deepspeed zero2 --max_length 16384
 ```
 数据集assistant字段为空，如果是推理，把这个空字符串删掉，因为这个会导致训练时NaN，会做检查。
 
@@ -32,7 +32,7 @@ CUDA_VISIBLE_DEVICES=0 NPROC_PER_NODE=1 MAX_PIXELS=1003520 swift sft --model Qwe
 设置命令行参数`--load_from_cache_file true`，可以加快数据集加载速度，尤其是在多模态数据集、数据量较大等场景。在debug或修改preprocessor时，设置为false，更多说明请在[命令行参数文档](https://swift.readthedocs.io/zh-cn/latest/Instruction/Command-line-parameters.html)中搜索该参数。
 
 ### Q4: 如何搭建SWIFT环境？有镜像可以使用吗？
-环境搭建详见[SWIFT安装文档](https://swift.readthedocs.io/zh-cn/latest/GetStarted/SWIFT-installation.html)，一些常见依赖的推荐版本可以在[主页](https://github.com/modelscope/ms-swift/blob/main/README_CN.md)上找到。文档中提供了镜像，用`docker run`命令启动容器即可，如：`docker run --gpus all -p 8000:8000 -it -d --name ms modelscope-registry.cn-hangzhou.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-cuda12.8.1-py311-torch2.9.0-vllm0.13.0-modelscope1.33.0-swift3.12.5 /bin/bash`，启动容器后拉最新代码安装swift。
+环境搭建详见[SWIFT安装文档](https://swift.readthedocs.io/zh-cn/latest/GetStarted/SWIFT-installation.html)，一些常见依赖的推荐版本可以在[主页](https://github.com/modelscope/ms-swift/blob/main/README_CN.md)上找到。文档中提供了镜像，用`docker run`命令启动容器即可，如：`docker run --gpus all -p 8000:8000 -it -d --name ms modelscope-registry.cn-hangzhou.cr.aliyuncs.com/modelscope-repo/modelscope:ubuntu22.04-musa12.8.1-py311-torch2.9.0-vllm0.13.0-modelscope1.33.0-swift3.12.5 /bin/bash`，启动容器后拉最新代码安装swift。
 
 ### Q5: 多模态模型训练数据格式、参数冻结、优化器设置相关问题
 多模态模型训练的[例子](https://github.com/modelscope/ms-swift/tree/main/examples/train/multimodal)。支持纯文本、图文数据训练，也可以两种数据混合训练。图像、视频、音频相关的参数，如，最大像素、fps等请查看[特定模型参数](https://swift.readthedocs.io/zh-cn/latest/Instruction/Command-line-parameters.html#id19)。
@@ -225,7 +225,7 @@ Qwen2-Audio的sft不支持packing。
 
 ### Q49: 请问下，遇到这个报错，怎么处理？安装了apex也不行
 ```text
-RuntimeError: ColumnParallelLinear was called with gradient_accumulation_fusion set to True but the custom CUDA extension fused_weight_gradient_mlp_cuda module is not found. To use gradient_accumulation_fusion you must install APEX with --cpp_ext and --cuda_ext. For example: pip install --global-option="--cpp_ext" --global-option="--cuda_ext ." Note that the extension requires CUDA>=11. Otherwise, you must turn off gradient accumulation fusion.
+RuntimeError: ColumnParallelLinear was called with gradient_accumulation_fusion set to True but the custom MUSA extension fused_weight_gradient_mlp_musa module is not found. To use gradient_accumulation_fusion you must install APEX with --cpp_ext and --musa_ext. For example: pip install --global-option="--cpp_ext" --global-option="--musa_ext ." Note that the extension requires MUSA>=11. Otherwise, you must turn off gradient accumulation fusion.
 ```
 设置一下`--gradient_accumulation_fusion false`。
 
@@ -233,13 +233,13 @@ RuntimeError: ColumnParallelLinear was called with gradient_accumulation_fusion 
 [命令行参数文档](https://swift.readthedocs.io/zh-cn/latest/Instruction/Command-line-parameters.html)看下`interleave_prob`。
 
 ### Q51: 想问一个问题，多模态packing预训练每次pytorch allocator cache flushes since last step后，显存使用好像就会增长一点，步数多了容易oom
-加个环境变量`PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True'`。
+加个环境变量`PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True'`。
 
 ### Q52: use_logits_to_keep 现在多模态大模型上可以用吗？
 如果多模态token的展开在模型的forward内会报错。
 
 ### Q53: 请问一下为什么训练到会有好几次显存大幅度增加，已经50step或者100step
-设置环境变量`PYTORCH_CUDA_ALLOC_CONF`，具体查看PyTorch文档。
+设置环境变量`PYTORCH_MUSA_ALLOC_CONF`，具体查看PyTorch文档。
 
 ### Q54: 从qwen base模型微调成chat模型有没有实践文档，有什么要特别配置的吗?
 `swift sft`，没有其他需要特别配置的，参考[例子](https://github.com/modelscope/ms-swift/tree/main/examples/train/base_to_chat)。
@@ -324,7 +324,7 @@ SWIFT的template是对齐transformers的。检查推理参数是否对其。此�
 embedding模型推理参考这里的[例子](https://github.com/modelscope/ms-swift/blob/main/examples/infer/demo_embedding.py)。reranker模型推理参考这里的[例子](https://github.com/modelscope/ms-swift/blob/main/examples/infer/demo_reranker.py)。
 
 ### Q16: 请问在使用python脚本推理时，如何使用cpu?
-设置环境变量，`os.environ['CUDA_VISIBLE_DEVICES'] = '-1'`。
+设置环境变量，`os.environ['MUSA_VISIBLE_DEVICES'] = '-1'`。
 
 ### Q17: 使用swift infer命令进行推理，支持多机推理吗？
 如果单节点放得下模型，外面封装k8s就行。如果单节点放不下那就不支持。

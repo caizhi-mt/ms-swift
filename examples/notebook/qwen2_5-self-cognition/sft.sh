@@ -1,6 +1,6 @@
 # Here is the command-line style training code.
 # 22GB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen2.5-3B-Instruct \
     --tuner_type lora \

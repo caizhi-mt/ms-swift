@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model LLM-Research/Meta-Llama-3.1-8B-Instruct \
     --tuner_type longlora \

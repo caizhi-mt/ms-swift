@@ -23,7 +23,7 @@ def is_torch_npu_available() -> bool:
         return False
 
 
-is_cuda_available = torch.cuda.is_available()
+is_musa_available = torch.musa.is_available()
 is_npu_available = is_torch_npu_available()
 
 
@@ -34,12 +34,12 @@ def _get_unique_tensor_key(tensor):
 
 def get_device_name() -> str:
     """Function that gets the torch.device based on the current machine.
-    This currently only supports CPU, CUDA, NPU.
+    This currently only supports CPU, MUSA, NPU.
     Returns:
         device
     """
-    if is_cuda_available:
-        device = 'cuda'
+    if is_musa_available:
+        device = 'musa'
     elif is_npu_available:
         device = 'npu'
     else:
@@ -65,14 +65,14 @@ class FSDPParameterFilter:
 def get_torch_device() -> Any:
     """Return the corresponding torch attribute based on the device type string.
     Returns:
-        module: The corresponding torch device namespace, or torch.cuda if not found.
+        module: The corresponding torch device namespace, or torch.musa if not found.
     """
     device_name = get_device_name()
     try:
         return getattr(torch, device_name)
     except AttributeError:
-        logger.warning(f"Device namespace '{device_name}' not found in torch, try to load torch.cuda.")
-        return torch.cuda
+        logger.warning(f"Device namespace '{device_name}' not found in torch, try to load torch.musa.")
+        return torch.musa
 
 
 class CpuOffloadHookWithOffloadHandler:

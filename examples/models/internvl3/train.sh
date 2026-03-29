@@ -1,7 +1,7 @@
 # 24GiB
 pip install "transformers==4.51.*"
 
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model OpenGVLab/InternVL3-8B \
     --dataset 'AI-ModelScope/LaTeX_OCR:human_handwrite#20000' \

@@ -1,6 +1,6 @@
 # OMP_NUM_THREADS=14 please Check issue: https://github.com/AutoGPTQ/AutoGPTQ/issues/439
 OMP_NUM_THREADS=14 \
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift export \
     --model Qwen/Qwen2.5-1.5B-Instruct \
     --dataset 'AI-ModelScope/alpaca-gpt4-data-zh#500' \

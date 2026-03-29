@@ -1,7 +1,7 @@
 # with padding_free: 4 * 53GiB, 3.55s/it
 # without padding_free: 4 * 62GiB 4.41s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 MAX_PIXELS=1003520 \
 swift rlhf \

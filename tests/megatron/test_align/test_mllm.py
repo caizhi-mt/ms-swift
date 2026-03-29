@@ -1,6 +1,6 @@
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+os.environ['MUSA_VISIBLE_DEVICES'] = '0,1,2,3'
 os.environ['SWIFT_TEST_CONVERT_PRECISION'] = '1'
 
 

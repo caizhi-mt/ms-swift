@@ -33,7 +33,7 @@ ms-swift的安装请参考[安装文档](./SWIFT-installation.md)。
 10分钟在单卡3090上对Qwen3-4B-Instruct-2507进行自我认知微调：
 ```shell
 # 13GB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen3-4B-Instruct-2507 \
     --tuner_type lora \
@@ -72,7 +72,7 @@ swift sft \
 
 ```shell
 # 使用交互式命令行进行推理
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --stream true \
@@ -80,7 +80,7 @@ swift infer \
     --max_new_tokens 2048
 
 # merge-lora并使用vLLM进行推理加速
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift infer \
     --adapters output/vx-xxx/checkpoint-xxx \
     --stream true \
@@ -93,7 +93,7 @@ swift infer \
 
 最后，使用以下命令将模型推送到ModelScope：
 ```shell
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift export \
     --adapters output/vx-xxx/checkpoint-xxx \
     --push_to_hub true \

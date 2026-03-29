@@ -1,6 +1,6 @@
 # 4*80G
 # exp: https://github.com/modelscope/ms-swift/pull/5355
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=4 \
 swift sft \
     --model Qwen/Qwen2.5-Math-1.5B \

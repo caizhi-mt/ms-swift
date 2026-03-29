@@ -1,5 +1,5 @@
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 MAX_NEGATIVE_SAMPLES=1 \
 swift sft \
     --model JinaAI/jina-reranker-m0 \

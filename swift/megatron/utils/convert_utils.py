@@ -21,7 +21,7 @@ def _test_params_sum(model):
     n_parameter = 0
     for n, p in model.named_parameters():
         n_parameter += 1
-        sum_ = p.to(device='cuda', dtype=torch.float32).abs().sum().cpu().item()
+        sum_ = p.to(device='musa', dtype=torch.float32).abs().sum().cpu().item()
         if sum_ == 0 and '.lora_B.' not in n:
             zero_count += 1
             logger.warning(f'n: {n}, sum: {sum_}')
@@ -70,7 +70,7 @@ def _model_cpu_forward_context(modules,
     if share_embedding:
         embedding = [module for module in modules if isinstance(module, (nn.Embedding, VocabParallelEmbedding))][-1]
 
-    def _to_cuda_hook(module, args):
+    def _to_musa_hook(module, args):
         if compute_device is not None or torch_dtype is not None:
             module.to(device=compute_device, dtype=torch_dtype)
             args = to_float_dtype(args, dtype=torch_dtype)
@@ -83,7 +83,7 @@ def _model_cpu_forward_context(modules,
 
     hooks = []
     for module in modules:
-        hooks.append(module.register_forward_pre_hook(_to_cuda_hook))
+        hooks.append(module.register_forward_pre_hook(_to_musa_hook))
         hooks.append(module.register_forward_hook(_to_cpu_hook))
     try:
         yield
@@ -162,7 +162,7 @@ def broadcast_mg_logits(mg_logits=None, src_rank=None):
     dtype = getattr(torch, dtype)
 
     if rank != src_rank:
-        mg_logits = torch.empty(shape, dtype=dtype, device='cuda')
+        mg_logits = torch.empty(shape, dtype=dtype, device='musa')
 
     dist.broadcast(mg_logits, src=src_rank)
 
@@ -186,7 +186,7 @@ def test_convert_precision(args, hf_model, mg_model, template, test_convert_dtyp
         if dist.get_world_size() == 1:
             _test_params_sum(hf_model)
         inputs = template.encode(get_examples(is_multimodal))
-        hf_inputs = to_device(template.data_collator([inputs]), 'cuda')
+        hf_inputs = to_device(template.data_collator([inputs]), 'musa')
         template.register_post_encode_hook([hf_model])
         HfConfigFactory.set_model_config_attr(hf_model, 'use_cache', False)
         model_arch = hf_model.model_meta.model_arch
@@ -196,12 +196,12 @@ def test_convert_precision(args, hf_model, mg_model, template, test_convert_dtyp
                 hf_modules, test_convert_dtype, share_embedding=share_embedding):
             hf_inputs.pop('text_position_ids', None)
             hf_logits = hf_model(**hf_inputs).logits
-            hf_logits = hf_logits.to('cuda')
+            hf_logits = hf_logits.to('musa')
         hf_model.to('cpu')
 
     template.use_megatron = True
     inputs = template.encode(get_examples(is_multimodal))
-    mg_inputs = to_device(template.data_collator([inputs], padding_to=get_padding_to(args)), 'cuda')
+    mg_inputs = to_device(template.data_collator([inputs], padding_to=get_padding_to(args)), 'musa')
     packed_seq_params = None
     mg_model.eval()
     # thd
@@ -222,7 +222,7 @@ def test_convert_precision(args, hf_model, mg_model, template, test_convert_dtyp
             if n.endswith('router'):
                 m.to(mg_dtype)
     with torch.inference_mode(), _model_cpu_forward_context(
-            mg_modules, test_convert_dtype, 'cuda', share_embedding=share_embedding, target_device=mg_device):
+            mg_modules, test_convert_dtype, 'musa', share_embedding=share_embedding, target_device=mg_device):
         mg_logits = forward_step_helper(args, mg_model, mg_inputs, dtype=test_convert_dtype)
         if args.tensor_model_parallel_size > 1 and args.task_type != 'seq_cls':
             from megatron.core.tensor_parallel.mappings import gather_from_tensor_model_parallel_region

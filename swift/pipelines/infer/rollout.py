@@ -51,7 +51,7 @@ try:
         from vllm.utils.network_utils import get_open_port
     else:
         from vllm.utils import get_open_port
-    from vllm.distributed.device_communicators.pynccl import PyNcclCommunicator
+    from vllm.distributed.device_communicators.pymccl import PyNcclCommunicator
     from vllm.distributed.parallel_state import get_world_group
     from vllm.distributed.utils import StatelessProcessGroup
     if is_vllm_ascend_available():

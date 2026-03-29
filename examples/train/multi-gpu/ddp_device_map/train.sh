@@ -1,7 +1,7 @@
 # 14GiB * 4
 nproc_per_node=2
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NPROC_PER_NODE=$nproc_per_node \
 swift sft \
     --model Qwen/Qwen2.5-7B-Instruct \

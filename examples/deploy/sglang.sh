@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 swift deploy \
     --model Qwen/Qwen3-8B \
     --infer_backend sglang \

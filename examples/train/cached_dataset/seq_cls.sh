@@ -14,7 +14,7 @@ swift export \
 
 
 # 18GiB
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 MAX_PIXELS=1003520 \
 swift sft \
     --model Qwen/Qwen2.5-Omni-3B \
@@ -52,7 +52,7 @@ swift sft \
     --attn_impl flash_attn
 
 # Use the validation set
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 MAX_PIXELS=1003520 \
 swift infer \
     --adapters output/Qwen2.5-Omni-3B/vx-xxx/checkpoint-xxx \

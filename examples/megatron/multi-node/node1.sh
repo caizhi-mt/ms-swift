@@ -1,8 +1,8 @@
 # For more information on multi-node training launch methods, refer to:
 # https://github.com/modelscope/ms-swift/tree/main/examples/train/multi-node
 
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NNODES=2 \
 NODE_RANK=0 \
 MASTER_ADDR=127.0.0.1 \

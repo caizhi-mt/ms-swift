@@ -64,7 +64,7 @@ class MegatronGKDTrainer(MegatronRolloutMixin, MegatronRLHFTrainer):
         super().__init__(args, template)
 
         # Get device for data processing
-        self.device = torch.cuda.current_device()
+        self.device = torch.musa.current_device()
 
         # Initialize vLLM rollout engine if on-policy generation is enabled
         self._init_rollout_engine()

@@ -1,7 +1,7 @@
 # use `swift/self-cognition:qwen3`
 # Avoid losing the thinking capability by appending `/no_think` to the dataset query.
 # https://github.com/modelscope/ms-swift/blob/77985c2ccdac8ed4037174ee222e79d1f1d5059d/swift/llm/dataset/dataset/llm.py#L835
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen3-8B \
     --tuner_type lora \

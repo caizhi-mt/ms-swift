@@ -2,7 +2,7 @@
 # ===================== Step 1: Start Teacher Server =====================
 # Run in a separate terminal / GPU:
 #
-#   CUDA_VISIBLE_DEVICES=0 vllm serve Qwen/Qwen2.5-7B-Instruct \
+#   MUSA_VISIBLE_DEVICES=0 vllm serve Qwen/Qwen2.5-7B-Instruct \
 #       --port 8000 \
 #       --max-logprobs 64 \
 #       --gpu-memory-utilization 0.9
@@ -10,8 +10,8 @@
 # ========================================================================
 
 NPROC_PER_NODE=4 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 swift rlhf \
     --rlhf_type gkd \
     --model Qwen/Qwen2.5-0.5B \

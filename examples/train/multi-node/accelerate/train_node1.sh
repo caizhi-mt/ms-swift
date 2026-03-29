@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 accelerate launch --config_file ./examples/train/multi-node/accelerate/multi_node.yaml --machine_rank 0 \
     swift/cli/sft.py \
     --model Qwen/Qwen2.5-7B-Instruct \

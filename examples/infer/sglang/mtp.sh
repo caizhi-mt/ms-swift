@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift infer \
     --model ZhipuAI/GLM-4.5-Air \
     --sglang_tp_size 4 \

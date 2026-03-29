@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 swift deploy \
+MUSA_VISIBLE_DEVICES=0 swift deploy \
     --model Qwen/Qwen2.5-7B-Instruct \
     --infer_backend vllm \
     --vllm_gpu_memory_utilization 0.9 \

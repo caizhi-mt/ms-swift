@@ -1,9 +1,9 @@
 # mcore>=0.15
 # 2 * 40GiB
 # dataset format: https://github.com/modelscope/ms-swift/pull/5277
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 megatron sft \
     --model openai-mirror/gpt-oss-20b \
     --save_safetensors true \
@@ -45,7 +45,7 @@ megatron sft \
     --model_author swift \
     --model_name swift-robot
 
-# CUDA_VISIBLE_DEVICES=0 \
+# MUSA_VISIBLE_DEVICES=0 \
 # swift infer \
 #     --model megatron_output/gpt-oss-20b/vx-xxx/checkpoint-xxx \
 #     --stream true

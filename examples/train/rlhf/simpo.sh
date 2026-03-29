@@ -1,7 +1,7 @@
 # 2*50GB
 nproc_per_node=2
 
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 NPROC_PER_NODE=$nproc_per_node \
 swift rlhf \
     --rlhf_type simpo \

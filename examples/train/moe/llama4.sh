@@ -2,7 +2,7 @@
 # `--target_regex '^(language_model).*\.(q_proj|k_proj|v_proj|o_proj|gate_proj|up_proj|down_proj)$'`
 NPROC_PER_NODE=4 \
 USE_HF=1 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model meta-llama/Llama-4-Scout-17B-16E-Instruct \
     --dataset 'linxy/LaTeX_OCR:full#5000' \

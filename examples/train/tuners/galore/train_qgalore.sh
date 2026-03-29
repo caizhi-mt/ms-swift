@@ -1,6 +1,6 @@
 # 35GiB
 # pip install bitsandbytes==0.40.0
-CUDA_VISIBLE_DEVICES=0 \
+MUSA_VISIBLE_DEVICES=0 \
 swift sft \
     --model Qwen/Qwen2.5-7B-Instruct \
     --tuner_type full \

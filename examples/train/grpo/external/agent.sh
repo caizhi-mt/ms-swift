@@ -2,11 +2,11 @@
 # model link: https://www.modelscope.cn/models/swift/Qwen2-7B-Agent-GRPO
 # WANDB_API_KEY=xxx \
 
-# CUDA_VISIBLE_DEVICES=7 \
+# MUSA_VISIBLE_DEVICES=7 \
 # swift rollout \
 #     --model Qwen/Qwen2.5-7B
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6 \
 NPROC_PER_NODE=7 \
 swift rlhf \
     --rlhf_type grpo \

@@ -5,7 +5,7 @@
 # https://github.com/modelscope/ms-swift/blob/main/examples/train/padding_free/sft.sh
 NPROC_PER_NODE=4 \
 MAX_PIXELS=1003520 \
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 swift sft \
     --model Qwen/Qwen2.5-VL-7B-Instruct \
     --tuner_type lora \

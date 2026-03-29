@@ -1,7 +1,7 @@
 # 2 * 42GiB
 IMAGE_MAX_TOKEN_NUM=1024 \
 NPROC_PER_NODE=2 \
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 swift sft \
     --model Qwen/Qwen3-VL-30B-A3B-Instruct \
     --dataset 'AI-ModelScope/LaTeX_OCR:human_handwrite#20000' \

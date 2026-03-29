@@ -1,7 +1,7 @@
 nnodes=2
 nproc_per_node=4
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 \
+MUSA_VISIBLE_DEVICES=0,1,2,3 \
 NNODES=$nnodes \
 NODE_RANK=0 \
 MASTER_ADDR=127.0.0.1 \

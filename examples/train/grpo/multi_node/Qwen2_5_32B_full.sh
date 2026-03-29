@@ -7,13 +7,13 @@
 # Note : Use beta=0 to disable the reference model; otherwise, it may lead to Out-of-Memory (OOM) errors.
 
 # NODE1 for vLLM Server
-CUDA_VISIBLE_DEVICES=0,1 \
+MUSA_VISIBLE_DEVICES=0,1 \
 swift rollout \
     --model Qwen/Qwen2.5-32B-Instruct \
     --vllm_tensor_parallel_size 2
 
 # NODE2 for Training
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
 swift rlhf \
     --rlhf_type grpo \

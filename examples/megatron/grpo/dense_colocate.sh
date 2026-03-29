@@ -7,7 +7,7 @@
 # num_of_prompt_to_rollout = generation_batch_size / num_generations (512 / 8 = 64)
 # num_of_prompt_to_train = generation_batch_size / num_generations (128 / 8 = 16)
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=8 \
 MAX_PIXELS=602112 \
 MASTER_PORT=29600 \

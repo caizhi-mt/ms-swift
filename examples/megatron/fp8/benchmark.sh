@@ -1,9 +1,9 @@
-# test_env: H20, cuda12.9
+# test_env: H20, musa12.9
 # FP8: 8 * 58GiB 8s/it
 # BF16: 8 * 52GiB 13s/it
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=8 \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 megatron sft \
     --model Qwen/Qwen3-14B-FP8 \
     --save_safetensors true \

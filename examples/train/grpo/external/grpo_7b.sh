@@ -1,10 +1,10 @@
 # 8 * 80 G (6 for training, 2 for rollout)
-# CUDA_VISIBLE_DEVICES=6,7 \
+# MUSA_VISIBLE_DEVICES=6,7 \
 # swift rollout \
 #     --model Qwen/Qwen2.5-7B-Instruct \
 #     --data_parallel_size 2
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5 \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5 \
 NPROC_PER_NODE=6 \
 swift rlhf \
     --rlhf_type grpo \

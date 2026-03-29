@@ -5,8 +5,8 @@
 # pip install "deepspeed==0.14.*"
 nproc_per_node=8
 
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
 NPROC_PER_NODE=$nproc_per_node \
 swift rlhf \
     --rlhf_type ppo \

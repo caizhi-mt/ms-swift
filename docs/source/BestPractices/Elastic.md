@@ -46,7 +46,7 @@ usage: dlrover-run [-h] [--nnodes NNODES] [--nproc-per-node NPROC_PER_NODE]
 model=your model path
 dataset=your dataset
 output= your output dir
-export CUDA_VISIBLE_DEVICES=0 根据实际使用的GPU情况设置
+export MUSA_VISIBLE_DEVICES=0 根据实际使用的GPU情况设置
 deepspeed_config_or_type=deepspeed类型或者配置文件的路径，如 zero1 或者/xxx/ms-swift/swift/llm/ds_config/zero1.json
 
 dlrover-run --nnodes 1:$NODE_NUM --nproc_per_node=1  \

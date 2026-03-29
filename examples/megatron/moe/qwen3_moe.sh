@@ -3,7 +3,7 @@
 # Launch using Alibaba Cloud DLC
 # https://help.aliyun.com/zh/pai/user-guide/general-environment-variables
 # ref: https://github.com/modelscope/ms-swift/blob/main/examples/train/multi-node/dlc/train.sh
-PYTORCH_CUDA_ALLOC_CONF='expandable_segments:True' \
+PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NNODES=$WORLD_SIZE \
 NODE_RANK=$RANK \
 megatron sft \

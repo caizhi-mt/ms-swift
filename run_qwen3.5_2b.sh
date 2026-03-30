@@ -20,6 +20,7 @@ export MCCL_BUFFSIZE=20971520
 export MUSA_BLOCK_SCHEDULE_MODE=1
 #export MUSA_LOG=0xffff
 export MUSA_LAUNCH_BLOCKING=1
+export MUSA_FAST_DEBUG=1
 #export MUDNN_LOG_LEVEL=INFO
 
 
@@ -30,8 +31,8 @@ MIN_LR=1e-6
 
 #NNODES=${WORLD SIZE} \
 #NODE_RANK=${RANK} \
-#MODEL_PATH="/data/caizhi/Qwen3.5-9B/"
-MODEL_PATH="/data/caizhi/Qwen3.5-2B"
+MODEL_PATH="/data/caizhi/Qwen3.5-9B/"
+#MODEL_PATH="/data/caizhi/Qwen3.5-2B"
 #PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
 NPROC_PER_NODE=8 \
 MUSA_VISIBLE_DEVICE5=0,1,2,3,4,5,6,7 \
@@ -42,12 +43,11 @@ megatron pt\
     --load_from_cache_file true \
     --split_dataset_ratio 0.01 \
     --micro_batch_size 1 \
-    --global_batch_size 1 \
+    --global_batch_size 2 \
     --num_train_epochs 1 \
-    --finetune true \
     --cross_entropy_loss_fusion true \
-    --tensor_model_parallel_size 2 \
-    --pipeline_model_parallel_size 4 \
+    --tensor_model_parallel_size 4 \
+    --pipeline_model_parallel_size 2 \
     --lr_warmup_fraction 0.02 \
     --min_lr ${MIN_LR} \
     --output_dir ${OUTPUT_DIR} \
@@ -64,7 +64,11 @@ megatron pt\
     --model_name swift-robot \
     --packing \
     --attention_backend unfused \
+    --manual_gc true \
+    --manual_gc_steps 100 \
     --recompute_granularity full \
     --recompute_method uniform \
-    --recompute_num_layers 1 
+    --recompute_num_layers 1 \
+    --finetune false 
     #--group_by_length true \
+    #--cross_entropy_fusion_impl te \

@@ -27,6 +27,7 @@ logger = get_logger()
 
 transformers_5 = version.parse(transformers.__version__) >= version.parse('5.0.0.dev')
 
+LOAD_NUMBER = 0
 
 def register_model(model_meta: ModelMeta, *, exist_ok: bool = False) -> None:
     """
@@ -305,8 +306,22 @@ class ModelLoader(BaseModelLoader):
                 context = partial(patch_automodel_for_sequence_classification, **context_kwargs)
             else:
                 context = partial(patch_automodel, **context_kwargs)
-            with context():
-                model = auto_model_cls.from_pretrained(model_dir, config=config, trust_remote_code=True, **model_kwargs)
+            from accelerate import init_empty_weights, load_checkpoint_and_dispatch
+            if int(os.getenv("MUSA_FAST_DEBUG", "0")):
+                global LOAD_NUMBER
+                LOAD_NUMBER += 1
+                with context():
+                    if LOAD_NUMBER < 3:
+                        with init_empty_weights():
+                            model = auto_model_cls.from_pretrained(model_dir, config=config, trust_remote_code=True, **model_kwargs)
+                    else:
+                        print("=========【MUSA debug】 load weight actually ......")
+                        model = auto_model_cls.from_pretrained(model_dir, config=config, trust_remote_code=True, **model_kwargs)
+            else:
+                with context():
+                    model = auto_model_cls.from_pretrained(model_dir, config=config, trust_remote_code=True, **model_kwargs)
+
+
         # fix not save modeling_xxx.py (transformers 4.45)
         # https://github.com/huggingface/transformers/issues/24737
         has_remote_code = hasattr(config, 'auto_map') and auto_model_cls.__name__ in config.auto_map

@@ -135,4 +135,3 @@ if [[ "${FAIL}" -ne 0 ]]; then
 fi
 
 echo "[INFO] all remote ssh sessions finished"
-

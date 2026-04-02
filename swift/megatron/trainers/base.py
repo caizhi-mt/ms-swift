@@ -180,6 +180,7 @@ class BaseMegatronTrainer(ABC):
         self.unwrapped_models = get_mcore_model(args, self.template.config)
         self.peft_models = self._prepare_peft_model(self.unwrapped_models)
         self.wrapped_models = wrap_model(args, self.unwrapped_models)
+        torch.musa.synchronize()
 
     def _prepare_peft_model(self, models):
         args = self.args

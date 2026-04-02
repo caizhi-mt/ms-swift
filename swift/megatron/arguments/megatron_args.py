@@ -373,6 +373,7 @@ class MegatronArguments(RLHFMegatronArgumentsMixin, MegatronTunerMixin):
     manual_gc: bool = False
     manual_gc_steps: int = 0
     manual_gc_eval: bool = True
+    grad_reduce_in_bf16: bool = True
 
     # data
     seed: int = 42

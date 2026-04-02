@@ -1,11 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-#pkill -f /usr/bin/python
-
 export LD_LIBRARY_PATH=/usr/local/musa/lib:/usr/local/musa/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 export PYTHONPATH=/home/Megatron-LM/:/home/megatron-lm-musa-patch/:${PYTHONPATH:-}
-export MUSA_FAST_DEBUG=1
 sed -i 's#if (implementation == "flash_attention_2" and is_fa2) or (implementation is None and is_fa2 and not is_fa3):#if True:#g' /usr/local/lib/python3.10/dist-packages/transformers/modeling_flash_attention_utils.py
 
 : "${NNODES:?NNODES is required}"
@@ -23,6 +20,8 @@ mkdir -p "${LOG_DIR}"
 OUTPUT_PATH="${WORK_DIR}/output"
 DATA_PATH="${DATA_PATH:-/mnt/moer-train/public/liang.geng/alpaca-gpt4-data-zh}"
 MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/models/Qwen3.5-27B}"
+#MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/models/Qwen3.5-2B}"
+#MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/liang.geng/Qwen3.5-0.8B}"
 
 SEQ_LENGTH="${SEQ_LENGTH:-8192}"
 LR="${LR:-1e-5}"
@@ -54,7 +53,7 @@ export CUDA_DEVICE_MAX_CONNECTIONS="${CUDA_DEVICE_MAX_CONNECTIONS:-1}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
 
 # debug for musa
-export MUSA_LAUNCH_BLOCKING=1
+#export MUSA_LAUNCH_BLOCKING=1
 #export MUDNN_LOG_LEVEL=INFO
 # export MCCL_DEBUG=INFO
 # export MCCL_DEBUG_SUBSYS=ALL
@@ -95,13 +94,17 @@ echo "[CHECK] WORLD_SIZE_TOTAL=${WORLD_SIZE_TOTAL}"
 #    exit 1
 #fi
 
+export ENABLE_GDN_BF16=1
+export MUSA_FAST_DEBUG=1
+#PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' \
+
 NNODES="${NNODES}" \
 NODE_RANK="${NODE_RANK}" \
 NPROC_PER_NODE="${NPROC_PER_NODE}" \
 MASTER_ADDR="${MASTER_ADDR}" \
 MASTER_PORT="${MASTER_PORT}" \
 MUSA_VISIBLE_DEVICES="${VISIBLE_DEVICES}" \
-megatron pt\
+megatron pt \
     --model ${MODEL_PATH} \
     --save_safetensors true \
     --dataset ${DATA_PATH} \
@@ -112,8 +115,12 @@ megatron pt\
     --num_train_epochs 1 \
     --finetune true \
     --cross_entropy_loss_fusion true \
-    --tensor_model_parallel_size 2 \
-    --pipeline_model_parallel_size 4 \
+    --tensor_model_parallel_size 4 \
+    --pipeline_model_parallel_size 8 \
+    --decoder-first-pipeline-num-layers 2 \
+    --decoder-last-pipeline-num-layers 2 \
+    --recompute-granularity selective \
+    --recompute-modules moe_act layernorm mlp core_attn \
     --lr_warmup_fraction 0.02 \
     --lr ${MIN_LR} \
     --min_lr ${MIN_LR} \
@@ -122,22 +129,27 @@ megatron pt\
     --freeze_aligner true \
     --output_dir ${OUTPUT_PATH} \
     --eval_steps 500 \
-    --save_steps 500\
+    --save_steps 500 \
     --max_length ${SEQ_LENGTH} \
     --dataloader_num_workers 8 \
     --dataset_num_proc 8 \
     --no_save_optim true \
     --no_save_rng true \
-    --sequence_parallel true \
+    --sequence_parallel false \
     --padding_free false \
     --model_author swift \
     --model_name swift-robot \
-    --attention_backend flash \
-    --recompute_granularity full \
-    --recompute_method uniform \
-    --recompute_num_layers 1 \
+    --manual_gc true \
+    --manual_gc_steps 100 \
+    --apply_rope_fusion true \
+    --attention_backend unfused \
+    --packing \
+    --grad_reduce_in_bf16 \
+    --bf16 true \
     2>&1 | tee "${LOG_DIR}/train_${TIMESTAMP}.log"
-    #--packing \
+    #--recompute_granularity full \
+    #--recompute_method uniform \
+    #--recompute_num_layers 1 \
     #--group_by_length true \
     #--recompute_granularity full \
     #--recompute_method uniform \

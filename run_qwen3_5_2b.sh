@@ -71,6 +71,8 @@ export MUSA_FAST_DEBUG=1
 # export PROFILER_ACTIVE_STEPS=1
 # export PROFILER_SAVE_DIR="${LOG_DIR}/profiler"
 
+# enable fla
+export SWIFT_USE_MCORE_GDN=1
 
 echo "================ TRAIN ENV ================"
 echo "HOSTNAME=$(hostname)"

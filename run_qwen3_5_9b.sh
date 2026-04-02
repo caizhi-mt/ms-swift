@@ -48,6 +48,7 @@ export PYTHONPATH=/home/Megatron-LM/:/home/megatron-lm-musa-patch/:${PYTHONPATH:
 export MUSA_EXECUTION_TIMEOUT="${MUSA_EXECUTION_TIMEOUT:-3200000}"
 export ACCELERATOR_BACKEND="${ACCELERATOR_BACKEND:-musa}"
 
+#export NO_LOSS_REDUCE=1
 export MCCL_PROTOS="${MCCL_PROTOS:-2}"
 export MCCL_ALGOS="${MCCL_ALGOS:-1}"
 export MCCL_BUFFSIZE="${MCCL_BUFFSIZE:-20971520}"
@@ -58,7 +59,7 @@ export CUDA_DEVICE_MAX_CONNECTIONS="${CUDA_DEVICE_MAX_CONNECTIONS:-1}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
 
 # debug for musa
-# export MUSA_LAUNCH_BLOCKING=1
+export MUSA_LAUNCH_BLOCKING=1
 # export MUDNN_LOG_LEVEL=INFO
 # export MCCL_DEBUG=INFO
 # export MCCL_DEBUG_SUBSYS=ALL
@@ -122,7 +123,7 @@ megatron pt\
     --load_from_cache_file true \
     --split_dataset_ratio 0.01 \
     --micro_batch_size 1 \
-    --global_batch_size 1 \
+    --global_batch_size 8 \
     --num_train_epochs 1 \
     --finetune true \
     --apply_rope_fusion true \

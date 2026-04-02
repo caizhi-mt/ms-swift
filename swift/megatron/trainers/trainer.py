@@ -1,4 +1,5 @@
 # Copyright (c) ModelScope Contributors. All rights reserved.
+import os
 import torch
 import torch.distributed as dist
 import torch.nn
@@ -69,7 +70,8 @@ class MegatronTrainer(BaseMegatronTrainer):
 
         # Reduce loss for logging.
         reporting_loss = loss.detach().clone()
-        torch.distributed.all_reduce(reporting_loss, group=mpu.get_data_parallel_group())
+        if not int(os.getenv('NO_LOSS_REDUCE', 0)):
+            torch.distributed.all_reduce(reporting_loss, group=mpu.get_data_parallel_group())
 
         lm_loss = loss[0]
         if not self.mcore_013:

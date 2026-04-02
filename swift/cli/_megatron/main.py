@@ -1,5 +1,9 @@
 # Copyright (c) ModelScope Contributors. All rights reserved.
+import os
 from typing import Dict
+
+if os.getenv('ACCELERATOR_BACKEND') == 'musa':
+    import musa_patch  # noqa: F401
 
 from swift.utils import get_logger
 from ..main import cli_main as swift_cli_main

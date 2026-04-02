@@ -14,4 +14,7 @@ class MegatronPretrain(MegatronSft):
 
 
 def megatron_pretrain_main(args: Optional[Union[List[str], MegatronPretrainArguments]] = None):
+    logger.info(
+        '[TRACE] Enter megatron_pretrain_main -> MegatronPretrain(args).main() -> '
+        'MegatronSft.run() -> trainer.train()')
     return MegatronPretrain(args).main()

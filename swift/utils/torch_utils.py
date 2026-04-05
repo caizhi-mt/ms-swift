@@ -16,6 +16,13 @@ from modelscope.hub.utils.utils import get_cache_dir
 from transformers.utils import is_torch_cuda_available, is_torch_mps_available, is_torch_npu_available
 from typing import Any, Mapping, Optional, Union
 
+try:
+    from transformers.utils import is_torch_musa_available
+except ImportError:
+
+    def is_torch_musa_available():
+        return hasattr(torch, 'musa') and torch.musa.is_available()
+
 from swift.utils import is_mp
 from .env import get_dist_setting, get_node_setting, is_dist, is_local_master, is_master
 from .logger import get_logger
@@ -34,8 +41,10 @@ def synchronize(device: Union[torch.device, str, int, None] = None):
         torch.npu.synchronize(device)
     elif is_torch_cuda_available():
         torch.cuda.synchronize(device)
+    elif is_torch_musa_available():
+        torch.musa.synchronize(device)
     else:
-        torch.cuda.synchronize(device)
+        return
 
 
 def time_synchronize() -> float:
@@ -95,6 +104,8 @@ def get_device(local_rank: Optional[Union[str, int]] = None) -> str:
         device = 'mps:{}'.format(local_rank)
     elif is_torch_cuda_available():
         device = 'cuda:{}'.format(local_rank)
+    elif is_torch_musa_available():
+        device = 'musa:{}'.format(local_rank)
     else:
         device = 'cpu'
 
@@ -106,6 +117,8 @@ def get_current_device():
         current_device = torch.npu.current_device()
     elif is_torch_cuda_available():
         current_device = torch.cuda.current_device()
+    elif is_torch_musa_available():
+        current_device = torch.musa.current_device()
     elif is_torch_mps_available():
         current_device = 'mps'
     else:
@@ -118,6 +131,8 @@ def get_torch_device():
         return torch.cuda
     elif is_torch_npu_available():
         return torch.npu
+    elif is_torch_musa_available():
+        return torch.musa
     elif is_torch_mps_available():
         return torch.mps
     else:
@@ -131,6 +146,8 @@ def set_device(local_rank: Optional[Union[str, int]] = None):
         torch.npu.set_device(local_rank)
     elif is_torch_cuda_available():
         torch.cuda.set_device(local_rank)
+    elif is_torch_musa_available():
+        torch.musa.set_device(local_rank)
 
 
 def get_device_count() -> int:
@@ -138,6 +155,8 @@ def get_device_count() -> int:
         return torch.npu.device_count()
     elif is_torch_cuda_available():
         return torch.cuda.device_count()
+    elif is_torch_musa_available():
+        return torch.musa.device_count()
     else:
         return 0
 
@@ -149,6 +168,8 @@ def empty_cache():
         torch.mps.empty_cache()
     elif is_torch_cuda_available():
         torch.cuda.empty_cache()
+    elif is_torch_musa_available():
+        torch.musa.empty_cache()
 
 
 def gc_collect() -> None:
@@ -234,6 +255,8 @@ def init_process_group(backend: Optional[str] = None, timeout: int = 18000000):
             backend = 'hccl'
         elif torch.cuda.is_available():
             backend = 'nccl'
+        elif torch.musa.is_available():
+            backend = 'mccl'
         else:
             backend = 'gloo'
     timeout = timedelta(seconds=timeout)

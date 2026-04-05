@@ -10,6 +10,17 @@ from json import JSONDecodeError
 from transformers.utils import is_torch_cuda_available, is_torch_npu_available
 from typing import Type
 
+try:
+    from transformers.utils import is_torch_musa_available
+except ImportError:
+
+    def is_torch_musa_available():
+        try:
+            import torch
+            return hasattr(torch, 'musa') and torch.musa.is_available()
+        except Exception:
+            return False
+
 from swift.arguments import ExportArguments
 from swift.utils import get_device_count
 from ..base import BaseUI
@@ -53,7 +64,7 @@ class LLMExport(BaseUI):
                 'en': 'Choose GPU'
             },
             'info': {
-                'zh': '选择使用的GPU号，如CUDA不可用只能选择CPU',
+                'zh': '选择使用的GPU号，如GPU不可用只能选择CPU',
                 'en': 'Select GPU to export'
             }
         },
@@ -162,16 +173,19 @@ class LLMExport(BaseUI):
         devices = [d for d in devices if d]
         assert (len(devices) == 1 or 'cpu' not in devices)
         gpus = ','.join(devices)
-        cuda_param = ''
+        device_param = ''
         if gpus != 'cpu':
             if is_torch_npu_available():
-                cuda_param = f'ASCEND_RT_VISIBLE_DEVICES={gpus}'
+                device_param = f'ASCEND_RT_VISIBLE_DEVICES={gpus}'
                 all_envs['ASCEND_RT_VISIBLE_DEVICES'] = gpus
             elif is_torch_cuda_available():
-                cuda_param = f'CUDA_VISIBLE_DEVICES={gpus}'
+                device_param = f'CUDA_VISIBLE_DEVICES={gpus}'
                 all_envs['CUDA_VISIBLE_DEVICES'] = gpus
+            elif is_torch_musa_available():
+                device_param = f'MUSA_VISIBLE_DEVICES={gpus}'
+                all_envs['MUSA_VISIBLE_DEVICES'] = gpus
             else:
-                cuda_param = ''
+                device_param = ''
         now = datetime.now()
         time_str = f'{now.year}{now.month}{now.day}{now.hour}{now.minute}{now.second}'
         file_path = f'output/{export_args.model_type}-{time_str}'
@@ -188,13 +202,13 @@ class LLMExport(BaseUI):
             additional_param = 'OMP_NUM_THREADS=14'
             all_envs['OMP_NUM_THREADS'] = '14'
         if sys.platform == 'win32':
-            if cuda_param:
-                cuda_param = f'set {cuda_param} && '
+            if device_param:
+                device_param = f'set {device_param} && '
             if additional_param:
                 additional_param = f'set {additional_param} && '
-            run_command = f'{cuda_param}{additional_param}start /b swift export {params} > {log_file} 2>&1'
+            run_command = f'{device_param}{additional_param}start /b swift export {params} > {log_file} 2>&1'
         else:
-            run_command = f'{cuda_param} {additional_param} nohup swift export {params} > {log_file} 2>&1 &'
+            run_command = f'{device_param} {additional_param} nohup swift export {params} > {log_file} 2>&1 &'
         return command, all_envs, run_command, export_args, log_file
 
     @classmethod

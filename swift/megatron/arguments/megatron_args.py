@@ -437,7 +437,7 @@ class MegatronArguments(RLHFMegatronArgumentsMixin, MegatronTunerMixin):
     # dist
     local_rank: Optional[int] = None  # Compatible with DeepSpeed launch
     ddp_timeout: int = 18000000
-    ddp_backend: Literal['nccl', 'gloo'] = 'nccl'
+    ddp_backend: Literal['nccl', 'mccl', 'gloo'] = 'nccl'
     use_distributed_optimizer: bool = True
     tensor_model_parallel_size: int = 1
     pipeline_model_parallel_size: int = 1

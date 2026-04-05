@@ -46,12 +46,19 @@ from swift.rollout import RolloutScheduler, multi_turns
 from swift.utils import get_logger, get_seed, get_torch_device, is_vllm_ascend_available
 from ..base import SwiftPipeline
 
+PyNcclCommunicator = None
 try:
     if check_vllm_version_ge('0.11.1'):
         from vllm.utils.network_utils import get_open_port
     else:
         from vllm.utils import get_open_port
-    from vllm.distributed.device_communicators.pynccl import PyNcclCommunicator
+    try:
+        from vllm.distributed.device_communicators.pynccl import PyNcclCommunicator
+    except ImportError:
+        try:
+            from vllm.distributed.device_communicators.pymccl import PyNcclCommunicator
+        except ImportError:
+            PyNcclCommunicator = None
     from vllm.distributed.parallel_state import get_world_group
     from vllm.distributed.utils import StatelessProcessGroup
     if is_vllm_ascend_available():
@@ -109,6 +116,10 @@ class WeightSyncWorkerExtension:
         # Create a stateless process group to manage communication between training processes and vLLM workers.
         # Initialize the NCCL-based communicator for weight synchronization.
         pg = StatelessProcessGroup.create(host=host, port=port, rank=rank, world_size=world_size)
+        if PyNcclCommunicator is None:
+            raise ImportError(
+                'Neither pynccl nor pymccl communicator is available in vLLM. '
+                'Please install a vLLM build with communicator support.')
 
         if is_vllm_ascend_available():
             # https://github.com/modelscope/ms-swift/issues/5920

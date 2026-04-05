@@ -399,16 +399,27 @@ def _get_max_memory(device_ids: List[int]) -> Dict[Union[int, str], int]:
     """add feat in accelerate to support MP + DDP"""
     import psutil
 
-    # Make sure CUDA is initialized on each GPU to have the right memory info.
+    use_cuda = torch.cuda.is_available()
+    use_musa = hasattr(torch, 'musa') and torch.musa.is_available()
+
+    # Make sure device runtime is initialized on each GPU to have the right memory info.
     for i in device_ids:
-        _ = torch.tensor([0], device=i)
+        if use_cuda:
+            _ = torch.tensor([0], device=f'cuda:{i}')
+        elif use_musa:
+            _ = torch.tensor([0], device=f'musa:{i}')
+        else:
+            _ = torch.tensor([0])
 
     device_ids_set = set(device_ids)
     max_memory = {}
     for i in range(get_device_count()):
         max_memory[i] = 0
         if i in device_ids_set:
-            max_memory[i] = torch.cuda.mem_get_info(i)[0]
+            if use_cuda:
+                max_memory[i] = torch.cuda.mem_get_info(i)[0]
+            elif use_musa:
+                max_memory[i] = torch.musa.mem_get_info(i)[0]
     max_memory['cpu'] = psutil.virtual_memory().available
     return max_memory
 

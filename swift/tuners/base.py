@@ -247,7 +247,12 @@ class SwiftModel(nn.Module):
             The state dict.
         """
         if device is None:
-            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            if torch.cuda.is_available():
+                device = 'cuda'
+            elif hasattr(torch, 'musa') and torch.musa.is_available():
+                device = 'musa'
+            else:
+                device = 'cpu'
         if os.path.exists(os.path.join(path, SAFETENSORS_WEIGHTS_NAME)):
             filename = os.path.join(path, SAFETENSORS_WEIGHTS_NAME)
             from safetensors.torch import load_file as safe_load_file
@@ -683,10 +688,19 @@ class SwiftModel(nn.Module):
             all_param += num_params
             if param.requires_grad:
                 trainable_params += num_params
+        if torch.cuda.is_available():
+            memory_type = 'cuda'
+            allocated_memory = sum([torch.cuda.memory_allocated(i) for i in range(get_device_count())])
+        elif hasattr(torch, 'musa') and torch.musa.is_available():
+            memory_type = 'musa'
+            allocated_memory = sum([torch.musa.memory_allocated(i) for i in range(get_device_count())])
+        else:
+            memory_type = 'gpu'
+            allocated_memory = 0
         return f'trainable params: {trainable_params:,d} || all params: {all_param:,d} ' \
                f'|| trainable%: {100 * trainable_params / all_param:.4f}' \
-               '|| cuda memory: ' \
-               f'{sum([torch.cuda.memory_allocated(i) for i in range(get_device_count())]) / 1024 / 1024 / 1024:.2f}' \
+               f'|| {memory_type} memory: ' \
+               f'{allocated_memory / 1024 / 1024 / 1024:.2f}' \
                'GiB.'
 
 

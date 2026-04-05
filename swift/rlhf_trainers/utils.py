@@ -418,11 +418,17 @@ def memory_time_profiling_context(
         synchronize()
 
     gc_collect()
+    device_api = get_torch_device()
 
     # Record initial memory state
-    memory_before = torch.cuda.memory_allocated() / 1024**3  # GiB
-    memory_reserved_before = torch.cuda.memory_reserved() / 1024**3
-    max_memory_before = torch.cuda.max_memory_allocated() / 1024**3
+    if hasattr(device_api, 'memory_allocated'):
+        memory_before = device_api.memory_allocated() / 1024**3  # GiB
+        memory_reserved_before = device_api.memory_reserved() / 1024**3
+        max_memory_before = device_api.max_memory_allocated() / 1024**3
+    else:
+        memory_before = 0.0
+        memory_reserved_before = 0.0
+        max_memory_before = 0.0
 
     logger.info(f'[{name}] Before: '
                 f'Allocated = {memory_before:.2f} GiB, '
@@ -444,9 +450,14 @@ def memory_time_profiling_context(
     elapsed_time = time.perf_counter() - start_time
 
     # Record final memory state
-    memory_after = torch.cuda.memory_allocated() / 1024**3
-    memory_reserved_after = torch.cuda.memory_reserved() / 1024**3
-    peak_memory = torch.cuda.max_memory_allocated() / 1024**3
+    if hasattr(device_api, 'memory_allocated'):
+        memory_after = device_api.memory_allocated() / 1024**3
+        memory_reserved_after = device_api.memory_reserved() / 1024**3
+        peak_memory = device_api.max_memory_allocated() / 1024**3
+    else:
+        memory_after = 0.0
+        memory_reserved_after = 0.0
+        peak_memory = 0.0
     memory_change = memory_after - memory_before
 
     logger.info(f'[{name}] After: '
@@ -457,8 +468,9 @@ def memory_time_profiling_context(
                 f'Time = {elapsed_time:.2f}s')
 
     # Reset peak memory statistics for next cycle
-    if reset_peak_stats and torch.cuda.is_available():
-        torch.cuda.reset_peak_memory_stats()
+    if reset_peak_stats and hasattr(device_api, 'is_available') and device_api.is_available() and hasattr(
+            device_api, 'reset_peak_memory_stats'):
+        device_api.reset_peak_memory_stats()
 
 
 def round_robin(num_reqs, num_workers):
@@ -1350,7 +1362,8 @@ def compute_chord_loss(trainer, grpo_loss: torch.Tensor) -> torch.Tensor:
     return loss
 
 
-_EXPANDABLE_SEGMENTS_SET = 'expandable_segments' in os.environ.get('PYTORCH_CUDA_ALLOC_CONF', '')
+_CUDA_EXPANDABLE_SEGMENTS_SET = 'expandable_segments' in os.environ.get('PYTORCH_CUDA_ALLOC_CONF', '')
+_MUSA_EXPANDABLE_SEGMENTS_SET = 'expandable_segments' in os.environ.get('PYTORCH_MUSA_ALLOC_CONF', '')
 
 
 def set_expandable_segments(enable: bool) -> None:
@@ -1381,11 +1394,12 @@ def set_expandable_segments(enable: bool) -> None:
         >>> set_expandable_segments(True)  # Enable to help with OOM issues
         >>> set_expandable_segments(False) # Disable for more predictable memory usage
     """
-    if not _EXPANDABLE_SEGMENTS_SET:
-        return
-    if torch.cuda.is_available():
+    if _CUDA_EXPANDABLE_SEGMENTS_SET and torch.cuda.is_available():
         torch.cuda.memory._set_allocator_settings(f'expandable_segments:{enable}')
         os.environ['PYTORCH_CUDA_ALLOC_CONF'] = f'expandable_segments:{enable}'
+    if _MUSA_EXPANDABLE_SEGMENTS_SET and hasattr(torch, 'musa') and torch.musa.is_available():
+        torch.musa.memory._set_allocator_settings(f'expandable_segments:{enable}')
+        os.environ['PYTORCH_MUSA_ALLOC_CONF'] = f'expandable_segments:{enable}'
 
 
 def peft_config_to_dict(peft_config):

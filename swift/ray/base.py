@@ -281,6 +281,7 @@ class RayHelper:
                     cluster_name = exp_name + '-'.join(local_groups)
                     worker_name = cluster_name + '-' + str(rank)
                     env_vars = os.environ.copy()
+                    visible_devices = ','.join([str(r) for r in deploy_pg['gpu_rank']])
                     env_vars.update({
                         'WORLD_SIZE':
                         str(world_size),
@@ -293,10 +294,13 @@ class RayHelper:
                         'WORKER_NAME':
                         worker_name,
                         VISIBLE_ENV_MAPPING[_config['device'].upper()]:
-                        ','.join([str(r) for r in deploy_pg['gpu_rank']]),  # TODO npu
+                        visible_devices,  # TODO npu
                         'RAY_SWIFT_ARGS':
                         get_args(),  # pass through env
                     })
+                    if _config['device'].upper() == 'GPU':
+                        # Keep CUDA compatibility and add MUSA visibility for non-CUDA backends.
+                        env_vars['MUSA_VISIBLE_DEVICES'] = visible_devices
 
                     @ray.remote
                     def get_node_address():

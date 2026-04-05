@@ -13,6 +13,17 @@ from subprocess import PIPE, STDOUT, Popen
 from transformers.utils import is_torch_cuda_available, is_torch_npu_available
 from typing import Dict, Type
 
+try:
+    from transformers.utils import is_torch_musa_available
+except ImportError:
+
+    def is_torch_musa_available():
+        try:
+            import torch
+            return hasattr(torch, 'musa') and torch.musa.is_available()
+        except Exception:
+            return False
+
 from swift.arguments import ExportArguments, RLHFArguments, get_supported_tuners
 from swift.utils import get_device_count, get_logger
 from ..base import BaseUI
@@ -105,7 +116,7 @@ class LLMTrain(BaseUI):
                 'en': 'Choose GPU'
             },
             'info': {
-                'zh': '选择训练使用的GPU号，如CUDA不可用只能选择CPU',
+                'zh': '选择训练使用的GPU号，如GPU不可用只能选择CPU',
                 'en': 'Select GPU to train'
             }
         },
@@ -454,16 +465,19 @@ class LLMTrain(BaseUI):
             all_envs['NPROC_PER_NODE'] = str(other_kwargs['ddp_num'])
         assert (len(devices) == 1 or 'cpu' not in devices)
         gpus = ','.join(devices)
-        cuda_param = ''
+        device_param = ''
         if gpus != 'cpu':
             if is_torch_npu_available():
-                cuda_param = f'ASCEND_RT_VISIBLE_DEVICES={gpus}'
+                device_param = f'ASCEND_RT_VISIBLE_DEVICES={gpus}'
                 all_envs['ASCEND_RT_VISIBLE_DEVICES'] = gpus
             elif is_torch_cuda_available():
-                cuda_param = f'CUDA_VISIBLE_DEVICES={gpus}'
+                device_param = f'CUDA_VISIBLE_DEVICES={gpus}'
                 all_envs['CUDA_VISIBLE_DEVICES'] = gpus
+            elif is_torch_musa_available():
+                device_param = f'MUSA_VISIBLE_DEVICES={gpus}'
+                all_envs['MUSA_VISIBLE_DEVICES'] = gpus
             else:
-                cuda_param = ''
+                device_param = ''
         if envs:
             env_list = envs.split(' ')
             for env in env_list:
@@ -471,8 +485,8 @@ class LLMTrain(BaseUI):
                 all_envs[k] = v
         log_file = os.path.join(sft_args.logging_dir, 'run.log')
         if sys.platform == 'win32':
-            if cuda_param:
-                cuda_param = f'set {cuda_param} && '
+            if device_param:
+                device_param = f'set {device_param} && '
             if ddp_param:
                 ddp_param = f'set {ddp_param} && '
             if envs:
@@ -481,9 +495,9 @@ class LLMTrain(BaseUI):
                 for env in envs:
                     _envs += f'set {env} && '
                 envs = _envs
-            run_command = f'{cuda_param}{ddp_param}{envs}start /b swift sft {params} > {log_file} 2>&1'
+            run_command = f'{device_param}{ddp_param}{envs}start /b swift sft {params} > {log_file} 2>&1'
         else:
-            run_command = f'{cuda_param} {ddp_param} {envs} nohup swift {cmd} {params} > {log_file} 2>&1 &'
+            run_command = f'{device_param} {ddp_param} {envs} nohup swift {cmd} {params} > {log_file} 2>&1 &'
         logger.info(f'Run training: {run_command}')
         if model:
             record = {}

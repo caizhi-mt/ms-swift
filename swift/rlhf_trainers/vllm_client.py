@@ -20,7 +20,13 @@ from swift.utils import get_torch_device, is_trl_available, is_vllm_ascend_avail
 from .utils import format_host_for_url, is_valid_ipv6_address, peft_config_to_dict, resolve_hostname
 
 if is_vllm_available():
-    from vllm.distributed.device_communicators.pynccl import PyNcclCommunicator
+    try:
+        from vllm.distributed.device_communicators.pynccl import PyNcclCommunicator
+    except ImportError:
+        try:
+            from vllm.distributed.device_communicators.pymccl import PyNcclCommunicator
+        except ImportError:
+            PyNcclCommunicator = None
     from vllm.distributed.utils import StatelessProcessGroup
 
     if is_vllm_ascend_available():
@@ -43,6 +49,10 @@ class VLLMClient:
                  connection_timeout: float = 240.0):
         if not is_vllm_available():
             raise ImportError('vLLM is not installed. Please install it with `pip install vllm`.')
+        if PyNcclCommunicator is None:
+            raise ImportError(
+                'Neither pynccl nor pymccl communicator is available in vLLM. '
+                'Please install a vLLM build with communicator support.')
 
         if base_urls is not None:
             self.base_urls = []

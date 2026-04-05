@@ -268,7 +268,7 @@ def patch_lmdeploy(load_weights=False):
                 for _ in e.map(self.model_comm.process_weight, self.gpu_list, ranks):
                     pass
             if version.parse(lmdeploy.__version__) < version.parse('0.7.2'):
-                for _ in e.map(self.model_comm.create_engine, self.gpu_list, ranks, repeat(self.nccl_params)):
+                for _ in e.map(self.model_comm.create_engine, self.gpu_list, ranks, repeat(self.comm_params)):
                     pass
             else:
                 for _ in e.map(self.model_comm.create_engine, self.gpu_list, ranks):
@@ -281,7 +281,10 @@ def patch_lmdeploy(load_weights=False):
         self.node_id = 0
         self.node_num = 1
         if version.parse(lmdeploy.__version__) < version.parse('0.7.2'):
-            self.nccl_params = model_comm.create_nccl_params(self.node_id)
+            if hasattr(model_comm, 'create_mccl_params'): # TODO(musa): may cause errs
+                self.comm_params = model_comm.create_mccl_params(self.node_id)
+            else:
+                self.comm_params = model_comm.create_nccl_params(self.node_id)
         synchronize()
 
         # create weight

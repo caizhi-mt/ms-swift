@@ -529,7 +529,8 @@ def wrap_model(args, models, wrap_with_ddp: bool = True):
     if not ddp_config.overlap_grad_reduce:
         ddp_config.bucket_size = None
 
-    with torch.cuda.stream(torch.cuda.Stream()):
+    ddp_steam = torch.cuda.Stream()
+    with torch.cuda.stream(ddp_steam):
         models = [
             DDP(
                 config=config,
@@ -540,7 +541,8 @@ def wrap_model(args, models, wrap_with_ddp: bool = True):
                 disable_bucketing=(model_chunk_idx > 0) or args.overlap_param_gather_with_optimizer_step,
             ) for (model_chunk_idx, model_chunk) in enumerate(models)
         ]
-
+    torch.cuda.current_stream().wait_stream(ddp_steam)
+    
     # Broadcast params from data parallel src rank to other data parallel ranks.
     if args.data_parallel_random_init:
         for m in models:

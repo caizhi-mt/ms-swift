@@ -14,6 +14,21 @@ def try_enable_torchada():
               'Install it via `pip install torchada`.', flush=True)
 
 
+def try_enable_musa_patch():
+    enable = os.environ.get('ENABLE_MEGATRON_MUSA_PATCH', '0').lower() in {'1', 'true', 'yes', 'on'}
+    if not enable:
+        return
+    if os.environ.get('ACCELERATOR_BACKEND') != 'musa':
+        print('[swift] ENABLE_MEGATRON_MUSA_PATCH is set but ACCELERATOR_BACKEND is not `musa`; skipping.',
+              flush=True)
+        return
+    try:
+        import musa_patch  # noqa: F401
+        print('[swift] musa_patch enabled.', flush=True)
+    except Exception as e:
+        print(f'[swift] Failed to enable musa_patch: {e!r}', flush=True)
+
+
 def try_use_single_device_mode():
     if os.environ.get('SWIFT_SINGLE_DEVICE_MODE', '0') == '1':
         env_key = 'CUDA_VISIBLE_DEVICES'

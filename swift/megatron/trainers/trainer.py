@@ -58,6 +58,7 @@ class MegatronTrainer(BaseMegatronTrainer):
 
         losses = output_tensor.float()
         loss_mask = labels != -100
+        actual_num_tokens = loss_mask.sum().detach().clone().to(torch.long)
         if args.enable_dft_loss:
             losses = losses * torch.exp(-losses.detach())
         if loss_scale is not None:
@@ -79,6 +80,7 @@ class MegatronTrainer(BaseMegatronTrainer):
         else:
             lm_loss = lm_loss.clone()
         local_num_tokens = loss[1].detach().clone().to(torch.int)
+        self.add_actual_tokens_per_gpu(actual_num_tokens)
         metrics = {'loss': reporting_loss}
         if args.enable_channel_loss:
             metrics.update(self._compute_channel_loss(losses, loss_mask, channels, packed_seq_params))

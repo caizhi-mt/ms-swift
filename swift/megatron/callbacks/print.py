@@ -27,6 +27,7 @@ class PrintCallback(MegatronCallback):
         self.training_bar.update(self.state.iteration)
         self.current_step = self.state.iteration
         self.start_time = time.time()
+        self.trainer.reset_actual_tokens_per_gpu()
         logging_path = os.path.join(self.args.output_dir, 'logging.jsonl')
         logger.info(f'logging_path: {logging_path}')
         self.jsonl_writer = JsonlWriter(logging_path, enable_async=True, write_on_rank='last')
@@ -51,6 +52,21 @@ class PrintCallback(MegatronCallback):
     def on_eval_step(self):
         self.eval_bar.update()
 
+    def _get_effective_seq_len(self):
+        if getattr(self.args, 'packing', False):
+            packing_length = getattr(self.args, 'packing_length', None)
+            if packing_length is not None:
+                return packing_length
+        return getattr(self.args, 'seq_length', None) or getattr(self.args, 'max_length', None)
+
+    def _get_world_size(self):
+        world_size = getattr(self.args, 'world_size', None)
+        if world_size is not None:
+            return world_size
+        if torch.distributed.is_available() and torch.distributed.is_initialized():
+            return torch.distributed.get_world_size()
+        return None
+
     def on_log(self, logs):
         state = self.state
         args = self.args
@@ -63,6 +79,20 @@ class PrintCallback(MegatronCallback):
         memory = reduce_max_stat_across_model_parallel_group(torch.cuda.max_memory_reserved() / 1024**3)
         logs['memory(GiB)'] = round(memory, 2)
         logs['train_speed(s/it)'] = round(train_speed, 6)
+        is_eval_log = any(k.startswith('eval_') for k in logs)
+        if not is_eval_log and train_speed > 0:
+            effective_seq_len = self._get_effective_seq_len()
+            num_microbatches = getattr(args, 'num_microbatches', None)
+            if effective_seq_len is not None and num_microbatches is not None:
+                tokens_per_step_per_gpu_est = args.micro_batch_size * num_microbatches * effective_seq_len
+                logs['tokens_per_second_per_gpu_est'] = tokens_per_step_per_gpu_est / train_speed
+            world_size = self._get_world_size()
+            if effective_seq_len is not None and world_size:
+                total_tokens_per_step = args.global_batch_size * effective_seq_len
+                logs['tokens_per_second_per_gpu_effective'] = total_tokens_per_step / (train_speed * world_size)
+            actual_tokens_per_second = self.trainer.get_actual_tokens_per_second_per_gpu(elapsed)
+            if actual_tokens_per_second is not None:
+                logs['tokens_per_second_per_gpu_actual'] = actual_tokens_per_second
         logs = {k: round(v, 8) if isinstance(v, float) else v for k, v in logs.items()}
         self.jsonl_writer.append(logs)
         if self.is_write_rank:

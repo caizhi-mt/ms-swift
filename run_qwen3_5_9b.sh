@@ -72,8 +72,8 @@ export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
 # export PROFILER_SAVE_DIR="${LOG_DIR}/profiler"
 # export PROFILER_PROFILE_MEMORY=1
 
-# enable torchada
-export SWIFT_ENABLE_TORCHADA=1
+export SWIFT_ENABLE_TORCHADA=1        # enable torchada
+export ENABLE_MEGATRON_MUSA_PATCH=1   # enbale megatron musa patch
 
 echo "================ TRAIN ENV ================"
 echo "HOSTNAME=$(hostname)"

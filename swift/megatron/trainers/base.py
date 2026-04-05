@@ -57,6 +57,8 @@ class BaseMegatronTrainer(ABC):
         self.template = template
         self.bridge = args.megatron_model_meta.bridge_cls(args)
         self.prepare_model()
+        self.total_actual_tokens_per_gpu = torch.zeros([], dtype=torch.long, device=torch.cuda.current_device())
+        self.actual_tokens_per_gpu_enabled = False
         self.config = self.unwrapped_models[0].config
         self.optimizer, self.opt_param_scheduler = self.get_optimizer_and_scheduler()
         self.data_collator = self._get_data_collator()
@@ -119,6 +121,22 @@ class BaseMegatronTrainer(ABC):
         if prefix:
             logs = {f'{prefix}{k}': v for k, v in logs.items()}
         self.call_event('on_log', logs=logs)
+
+    def reset_actual_tokens_per_gpu(self):
+        self.total_actual_tokens_per_gpu.zero_()
+        self.actual_tokens_per_gpu_enabled = False
+
+    def add_actual_tokens_per_gpu(self, num_tokens: Optional[torch.Tensor]):
+        if num_tokens is None:
+            return
+        self.total_actual_tokens_per_gpu += num_tokens.detach().to(
+            device=self.total_actual_tokens_per_gpu.device, dtype=self.total_actual_tokens_per_gpu.dtype)
+        self.actual_tokens_per_gpu_enabled = True
+
+    def get_actual_tokens_per_second_per_gpu(self, elapsed_time: float) -> Optional[float]:
+        if not self.actual_tokens_per_gpu_enabled or elapsed_time <= 0:
+            return None
+        return self.total_actual_tokens_per_gpu.float().item() / elapsed_time
 
     def _log_callback(self, logs, n_steps):
         args = self.args
@@ -590,6 +608,7 @@ class BaseMegatronTrainer(ABC):
                 val_data_iterator.append(val_it)
         else:
             train_data_iterator, val_data_iterator = self._prepare_data_iterator(train_dataset, val_dataset)
+        self.reset_actual_tokens_per_gpu()
         while state.iteration < args.train_iters:
             self.call_event('on_step_begin')
             maybe_finalize_async_save(args, blocking=False)

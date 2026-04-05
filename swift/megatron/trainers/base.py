@@ -9,6 +9,7 @@ import torch
 import torch.nn
 from abc import ABC, abstractmethod
 from contextlib import contextmanager, nullcontext
+from datetime import datetime
 from functools import partial
 from megatron.core import mpu
 from megatron.core.distributed import DistributedDataParallel as DDP
@@ -48,6 +49,57 @@ except ImportError:
     param_group_identifier_keys = None
 
 logger = get_logger()
+
+
+@contextmanager
+def maybe_enable_profiling():
+    enable_profiling = int(os.getenv('ENABLE_PROFILER', 0))
+    if not enable_profiling:
+        yield None
+        return
+
+    warmup_steps = int(os.getenv('PROFILER_WARMUP_STEPS', 3))
+    active_steps = int(os.getenv('PROFILER_ACTIVE_STEPS', 1))
+    repeat_num = int(os.getenv('PROFILER_REPEAT_NUM', 0))
+    profile_freq = int(os.getenv('PROFILER_FREQ', 1))
+    current_time = datetime.now().strftime('%Y.%m.%d-%H:%M:%S')
+    save_dir = os.getenv('PROFILER_SAVE_DIR', f'./profiler_result/{current_time}')
+    record_shapes = bool(int(os.getenv('PROFILER_RECORD_SHAPES', 1)))
+    profile_memory = bool(int(os.getenv('PROFILER_PROFILE_MEMORY', 0)))
+    with_stack = bool(int(os.getenv('PROFILER_WITH_STACK', 1)))
+    with_modules = bool(int(os.getenv('PROFILER_WITH_MODULES', 1)))
+
+    wait = profile_freq - (active_steps + warmup_steps)
+    assert wait >= 0, 'PROFILER_FREQ must be greater than or equal to warmup + active'
+
+    rank = torch.distributed.get_rank() if torch.distributed.is_initialized() else 0
+    os.makedirs(save_dir, exist_ok=True)
+
+    def trace_handler(prof):
+        curr_trace_dir = os.path.join(save_dir, f'iteration_{prof.step_num}')
+        os.makedirs(curr_trace_dir, exist_ok=True)
+        trace_path = os.path.join(curr_trace_dir, f'rank{rank}_trace.pt.trace.json')
+        print(f'Profiling active. Dumping profiler traces at step {prof.step_num} to {trace_path}', flush=True)
+        prof.export_chrome_trace(trace_path)
+        print('Finished dumping profiler traces', flush=True)
+
+    print(f'Profiling active. Traces will be saved at {save_dir}', flush=True)
+
+    activities = [torch.profiler.ProfilerActivity.CPU]
+    if hasattr(torch.profiler.ProfilerActivity, 'MUSA'):
+        activities.append(torch.profiler.ProfilerActivity.MUSA)
+    else:
+        activities.append(torch.profiler.ProfilerActivity.CUDA)
+
+    with torch.profiler.profile(
+            activities=activities,
+            schedule=torch.profiler.schedule(wait=wait, warmup=warmup_steps, active=active_steps, repeat=repeat_num),
+            on_trace_ready=trace_handler,
+            record_shapes=record_shapes,
+            profile_memory=profile_memory,
+            with_stack=with_stack,
+            with_modules=with_modules) as torch_profiler:
+        yield torch_profiler
 
 
 class BaseMegatronTrainer(ABC):
@@ -609,60 +661,64 @@ class BaseMegatronTrainer(ABC):
         else:
             train_data_iterator, val_data_iterator = self._prepare_data_iterator(train_dataset, val_dataset)
         self.reset_actual_tokens_per_gpu()
-        while state.iteration < args.train_iters:
-            self.call_event('on_step_begin')
-            maybe_finalize_async_save(args, blocking=False)
-            metrics, grad_norm, update_successful = self.train_step(train_data_iterator)
-            if state.iteration == start_iteration:
-                if update_successful:
-                    # Enable forward pre-hook after training step has successfully run. All subsequent
-                    # forward passes will use the forward pre-hook / `param_sync_func` in
-                    # `forward_backward_func`.
+        with maybe_enable_profiling() as torch_profiler:
+            while state.iteration < args.train_iters:
+                self.call_event('on_step_begin')
+                maybe_finalize_async_save(args, blocking=False)
+                metrics, grad_norm, update_successful = self.train_step(train_data_iterator)
+                if state.iteration == start_iteration:
+                    if update_successful:
+                        # Enable forward pre-hook after training step has successfully run. All subsequent
+                        # forward passes will use the forward pre-hook / `param_sync_func` in
+                        # `forward_backward_func`.
+                        if should_disable_forward_pre_hook(args):
+                            enable_forward_pre_hook(self.wrapped_models)
+                            config.param_sync_func = param_sync_func
+                            pre_hook_enabled = True
+                    else:
+                        start_iteration = state.iteration + 1
+
+                if torch_profiler is not None:
+                    torch_profiler.step()
+
+                state.iteration += 1
+                self.call_event('on_step_end')
+                self._aggregated_metrics(metrics, train_metrics)
+                train_metrics['grad_norm'] = grad_norm
+                learning_rate = None
+                for param_group in self.optimizer.param_groups:
+                    if len(param_group['params']) == 0:
+                        continue
+                    learning_rate = param_group['lr']
+                if learning_rate is not None:
+                    train_metrics['learning_rate'] = learning_rate
+                if state.should_log:
+                    state.should_log = False
+                    self.on_log(logs=train_metrics)
+                    train_metrics = {}
+
+                eval_metrics = None
+                if state.should_eval:
+                    state.should_eval = False
+                    if should_disable_forward_pre_hook(args):
+                        disable_forward_pre_hook(self.wrapped_models)
+                        pre_hook_enabled = False
+                    eval_metrics = self.evaluate(val_data_iterator)
+                    for m in self.wrapped_models:
+                        m.train()
                     if should_disable_forward_pre_hook(args):
                         enable_forward_pre_hook(self.wrapped_models)
-                        config.param_sync_func = param_sync_func
                         pre_hook_enabled = True
-                else:
-                    start_iteration = state.iteration + 1
 
-            state.iteration += 1
-            self.call_event('on_step_end')
-            self._aggregated_metrics(metrics, train_metrics)
-            train_metrics['grad_norm'] = grad_norm
-            learning_rate = None
-            for param_group in self.optimizer.param_groups:
-                if len(param_group['params']) == 0:
-                    continue
-                learning_rate = param_group['lr']
-            if learning_rate is not None:
-                train_metrics['learning_rate'] = learning_rate
-            if state.should_log:
-                state.should_log = False
-                self.on_log(logs=train_metrics)
-                train_metrics = {}
-
-            eval_metrics = None
-            if state.should_eval:
-                state.should_eval = False
-                if should_disable_forward_pre_hook(args):
-                    disable_forward_pre_hook(self.wrapped_models)
-                    pre_hook_enabled = False
-                eval_metrics = self.evaluate(val_data_iterator)
-                for m in self.wrapped_models:
-                    m.train()
-                if should_disable_forward_pre_hook(args):
-                    enable_forward_pre_hook(self.wrapped_models)
-                    pre_hook_enabled = True
-
-            if state.should_save:
-                self._determine_best_metric(eval_metrics)
-                if should_disable_forward_pre_hook(args):
-                    disable_forward_pre_hook(self.wrapped_models)
-                state.should_save = False
-                self.save_checkpoint()
-                self.call_event('on_save', output_dir=self.state.last_model_checkpoint)
-                if should_disable_forward_pre_hook(args):
-                    enable_forward_pre_hook(self.wrapped_models)
+                if state.should_save:
+                    self._determine_best_metric(eval_metrics)
+                    if should_disable_forward_pre_hook(args):
+                        disable_forward_pre_hook(self.wrapped_models)
+                    state.should_save = False
+                    self.save_checkpoint()
+                    self.call_event('on_save', output_dir=self.state.last_model_checkpoint)
+                    if should_disable_forward_pre_hook(args):
+                        enable_forward_pre_hook(self.wrapped_models)
 
         self.call_event('on_train_end')
         # Close out pre-hooks if using distributed optimizer and overlapped param gather.

@@ -66,11 +66,10 @@ export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
 
 # profiling for megatron musa patch
 # export ENABLE_PROFILER=1
-# export PROFILER_FREQ=4   # 1~3 for warmup, 4 for active
+# export PROFILER_FREQ=6   # 1~3 for warmup, 4 for active
 # export PROFILER_WARMUP_STEPS=3
-# export PROFILER_ACTIVE_STEPS=1
+# export PROFILER_ACTIVE_STEPS=3
 # export PROFILER_SAVE_DIR="${LOG_DIR}/profiler"
-# export PROFILER_PROFILE_MEMORY=1
 
 export SWIFT_ENABLE_TORCHADA=1         # enable torchada
 # export ENABLE_MEGATRON_MUSA_PATCH=1  # enbale megatron musa patch, not suggested for loading models wait too long, use with caution
@@ -124,7 +123,7 @@ megatron pt\
     --load_from_cache_file true \
     --split_dataset_ratio 0.01 \
     --micro_batch_size 1 \
-    --global_batch_size 8 \
+    --global_batch_size 16 \
     --num_train_epochs 1 \
     --finetune true \
     --apply_rope_fusion true \

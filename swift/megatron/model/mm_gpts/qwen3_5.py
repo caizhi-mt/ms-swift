@@ -22,6 +22,11 @@ try:
 except ImportError:
     _Qwen3_5MoeGatedDeltaNet = object
 
+try:
+    from fla.ops.gated_delta_rule import chunk_gated_delta_rule
+except ImportError:
+    print("请安装 fla 库: pip install flash-linear-attention")
+
 
 def torch_chunk_gated_delta_rule_patch_musa(
     query,
@@ -114,7 +119,7 @@ class Qwen3_5MoeGatedDeltaNet(_HuggingFaceModule, _Qwen3_5MoeGatedDeltaNet):
         self.config = config
         extra_kwargs = _get_extra_te_kwargs(config)
         if int(os.getenv("ENABLE_GDN_BF16", 0)):
-            self.chunk_gated_delta_rule = torch_chunk_gated_delta_rule_patch_musa
+            self.chunk_gated_delta_rule = chunk_gated_delta_rule
         self.to(dtype=extra_kwargs['params_dtype'], device=extra_kwargs['device'])
 
     def forward(self, hidden_states: torch.Tensor, **kwargs):

@@ -49,6 +49,7 @@ except ImportError:
     param_group_identifier_keys = None
 
 logger = get_logger()
+_NO_LOSS_REDUCE_TRACE_PRINTED = False
 
 
 @contextmanager
@@ -563,6 +564,8 @@ class BaseMegatronTrainer(ABC):
                            metric: Dict[str, torch.Tensor],
                            reduction=torch.distributed.ReduceOp.AVG,
                            group=None) -> Dict[str, torch.Tensor]:
+        if int(os.getenv('NO_LOSS_REDUCE', 0)):
+            return metric
         if group is None:
             group = mpu.get_data_parallel_group()
         reporting_metric = torch.stack(list(metric.values()), dim=0)
@@ -876,6 +879,58 @@ class BaseMegatronTrainer(ABC):
     def _replace_data_iterator(self, data_iterator):
         return data_iterator
 
+    def _apply_no_loss_reduce(self, metrics):
+        global _NO_LOSS_REDUCE_TRACE_PRINTED
+        no_loss_reduce = int(os.getenv('NO_LOSS_REDUCE', 0))
+        if no_loss_reduce and not _NO_LOSS_REDUCE_TRACE_PRINTED:
+            logger.info('NO_LOSS_REDUCE is enabled. Per-microbatch loss all-reduce is skipped and metrics are '
+                        'aggregated once in train_step.')
+            _NO_LOSS_REDUCE_TRACE_PRINTED = True
+        if not no_loss_reduce or not metrics:
+            return metrics
+
+        metric_list = metrics if isinstance(metrics, list) else [metrics]
+        ordered_keys = []
+        for row in metric_list:
+            if not isinstance(row, dict):
+                continue
+            for key in row.keys():
+                if key not in ordered_keys:
+                    ordered_keys.append(key)
+
+        for key in ordered_keys:
+            key_rows = []
+            values = []
+            for row in metric_list:
+                if not isinstance(row, dict) or key not in row or row[key] is None:
+                    continue
+                val = row[key]
+                if not torch.is_tensor(val):
+                    continue
+                key_rows.append(row)
+                values.append(val)
+
+            if not values:
+                continue
+
+            reduced_val = values[0].clone()
+            for val in values[1:]:
+                reduced_val += val
+            torch.distributed.all_reduce(reduced_val, group=mpu.get_data_parallel_group())
+
+            if reduced_val.numel() == 1:
+                reduced_val = torch.stack([reduced_val, reduced_val.new_tensor(len(values))])
+            elif reduced_val.numel() != 2:
+                raise ValueError(
+                    f'NO_LOSS_REDUCE only supports scalar or 2-element metrics, '
+                    f'but got key={key!r} with shape={tuple(reduced_val.shape)}')
+
+            first_row = key_rows[0]
+            first_row[key] = reduced_val
+            for row in key_rows[1:]:
+                row[key] = None
+        return metrics
+
     def train_step(self, train_data_iterator):
         args = self.args
         forward_backward_func = get_forward_backward_func()
@@ -893,6 +948,7 @@ class BaseMegatronTrainer(ABC):
             micro_batch_size=args.micro_batch_size,
             forward_only=False,
         )
+        metrics = self._apply_no_loss_reduce(metrics)
 
         update_successful, grad_norm, _ = self.optimizer.step()
         update_successful = logical_and_across_model_parallel_group(update_successful)

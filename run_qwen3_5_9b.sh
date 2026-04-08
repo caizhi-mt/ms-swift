@@ -48,6 +48,7 @@ export PYTHONPATH=/home/Megatron-LM/:/home/megatron-lm-musa-patch/:${PYTHONPATH:
 export MUSA_EXECUTION_TIMEOUT="${MUSA_EXECUTION_TIMEOUT:-3200000}"
 export ACCELERATOR_BACKEND="${ACCELERATOR_BACKEND:-musa}"
 
+# MCCL envs, for musa env
 export MCCL_PROTOS="${MCCL_PROTOS:-2}"
 export MCCL_ALGOS="${MCCL_ALGOS:-1}"
 export MCCL_BUFFSIZE="${MCCL_BUFFSIZE:-20971520}"
@@ -71,8 +72,11 @@ export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
 # export PROFILER_ACTIVE_STEPS=3
 # export PROFILER_SAVE_DIR="${LOG_DIR}/profiler"
 
+# for musa env
 export SWIFT_ENABLE_TORCHADA=1         # enable torchada
 # export ENABLE_MEGATRON_MUSA_PATCH=1  # enbale megatron musa patch, not suggested for loading models wait too long, use with caution
+export NO_LOSS_REDUCE=1
+
 
 echo "================ TRAIN ENV ================"
 echo "HOSTNAME=$(hostname)"

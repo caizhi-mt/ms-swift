@@ -68,7 +68,7 @@ def maybe_enable_profiling():
     record_shapes = bool(int(os.getenv('PROFILER_RECORD_SHAPES', 1)))
     profile_memory = bool(int(os.getenv('PROFILER_PROFILE_MEMORY', 0)))
     with_stack = bool(int(os.getenv('PROFILER_WITH_STACK', 1)))
-    with_modules = bool(int(os.getenv('PROFILER_WITH_MODULES', 1)))
+    with_modules = bool(int(os.getenv('PROFILER_WITH_MODULES', 0))) # set 0 to make smaller trace files and avoid profiler overhead. Can set to 1 to get module info in trace.
 
     wait = profile_freq - (active_steps + warmup_steps)
     assert wait >= 0, 'PROFILER_FREQ must be greater than or equal to warmup + active'

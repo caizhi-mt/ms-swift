@@ -76,14 +76,17 @@ class Qwen3NextRMSNorm(torch.nn.Module):
         self.weight = torch.nn.Parameter(torch.zeros(hidden_size))
 
     def _norm(self, x):
-        return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
+        # return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
+        return torch.nn.functional.rms_norm(x, normalized_shape=(x.shape[-1],), weight=(1.0+self.weight), eps=self.eps)
 
     def forward(self, hidden_states):
-        output = self._norm(hidden_states.float())
+        # output = self._norm(hidden_states.float())
         # Zero-Centered: use (1 + weight) instead of weight
         # This matches HuggingFace's Qwen3NextRMSNorm exactly
-        output = output * (1.0 + self.weight.float())
-        return output.type_as(hidden_states)
+        # output = output * (1.0 + self.weight.float())
+        # return output.type_as(hidden_states)
+        output = self._norm(hidden_states)
+        return output
 
 
 class Qwen3NextSelfAttention(SelfAttention):

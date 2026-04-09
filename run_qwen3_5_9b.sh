@@ -33,7 +33,7 @@ LR="${LR:-1e-5}"
 MIN_LR="${MIN_LR:-1e-6}"
 
 TP_SIZE="${TP_SIZE:-1}"
-PP_SIZE="${PP_SIZE:-8}"
+PP_SIZE="${PP_SIZE:-4}"
 #EP_SIZE="${EP_SIZE:-4}"
 
 MICRO_BATCH_SIZE="${MICRO_BATCH_SIZE:-1}"
@@ -77,6 +77,8 @@ export SWIFT_ENABLE_TORCHADA=1         # enable torchada
 # export ENABLE_MEGATRON_MUSA_PATCH=1  # enbale megatron musa patch, not suggested for loading models wait too long, use with caution
 export NO_LOSS_REDUCE=1
 
+# swift
+export SWIFT_USE_MCORE_GDN=1
 
 echo "================ TRAIN ENV ================"
 echo "HOSTNAME=$(hostname)"

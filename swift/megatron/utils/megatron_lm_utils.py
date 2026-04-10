@@ -125,7 +125,7 @@ def _get_rng_state():
         'np_rng_state': np.random.get_state(),
         'torch_rng_state': torch.get_rng_state(),
         'musa_rng_state': torch.musa.get_rng_state(),
-        'rng_tracker_states': tensor_parallel.get_musa_rng_tracker().get_states()
+        'rng_tracker_states': tensor_parallel.get_cuda_rng_tracker().get_states()
     }
 
     # data_parallel_random_init False
@@ -485,7 +485,7 @@ def load_mcore_checkpoint(args,
             np.random.set_state(rng_state['np_rng_state'])
             torch.set_rng_state(rng_state['torch_rng_state'])
             torch.musa.set_rng_state(rng_state['musa_rng_state'])
-            tensor_parallel.get_musa_rng_tracker().set_states(rng_state['rng_tracker_states'])
+            tensor_parallel.get_cuda_rng_tracker().set_states(rng_state['rng_tracker_states'])
     if torch.distributed.is_initialized():
         torch.distributed.barrier()
 

@@ -1,2 +1,2 @@
-pip uninstall ms_swift
+pip uninstall ms_swift -y
 pip install -e ./

@@ -1,11 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+export PATH=/usr/local/musa/bin:/usr/local/musa/mudnn/bin:/usr/local/musa/mudnn_bench/bin:/usr/local/musa/mccl_test:/usr/local/openmpi/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/musa/lib:/usr/local/musa/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-export PYTHONPATH=/home/Megatron-LM/:/home/megatron-lm-musa-patch/:${PYTHONPATH:-}
-# sed -i 's#if (implementation == "flash_attention_2" and is_fa2) or (implementation is None and is_fa2 and not is_fa3):#if True:#g' /usr/local/lib/python3.10/dist-packages/transformers/modeling_flash_attention_utils.py
-
-bash install.sh
+sed -i 's#if (implementation == "flash_attention_2" and is_fa2) or (implementation is None and is_fa2 and not is_fa3):#if True:#g' /usr/local/lib/python3.10/dist-packages/transformers/modeling_flash_attention_utils.py
 
 : "${NNODES:?NNODES is required}"
 : "${NODE_RANK:?NODE_RANK is required}"
@@ -25,16 +23,16 @@ MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/models/Qwen3.5-27B}"
 #MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/models/Qwen3.5-2B}"
 #MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/liang.geng/Qwen3.5-0.8B}"
 
-SEQ_LENGTH="${SEQ_LENGTH:-8192}"
+SEQ_LENGTH="${SEQ_LENGTH:-32768}"
 LR="${LR:-1e-5}"
 MIN_LR="${MIN_LR:-1e-6}"
 
 TP_SIZE="${TP_SIZE:-1}"
-PP_SIZE="${PP_SIZE:-4}"
+PP_SIZE="${PP_SIZE:-8}"
 #EP_SIZE="${EP_SIZE:-4}"
 
 MICRO_BATCH_SIZE="${MICRO_BATCH_SIZE:-1}"
-GLOBAL_BATCH_SIZE="${GLOBAL_BATCH_SIZE:-128}"
+GLOBAL_BATCH_SIZE="${GLOBAL_BATCH_SIZE:-1}"
 
 DATALOADER_NUM_WORKERS="${DATALOADER_NUM_WORKERS:-8}"
 DATASET_NUM_PROC="${DATASET_NUM_PROC:-8}"
@@ -55,26 +53,15 @@ export CUDA_DEVICE_MAX_CONNECTIONS="${CUDA_DEVICE_MAX_CONNECTIONS:-1}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
 
 # debug for musa
-# export MUSA_LAUNCH_BLOCKING=1
-# export MUDNN_LOG_LEVEL=INFO
+#export MUSA_LAUNCH_BLOCKING=1
+#export MUDNN_LOG_LEVEL=INFO
 # export MCCL_DEBUG=INFO
 # export MCCL_DEBUG_SUBSYS=ALL
-# export MUSA_FAST_DEBUG=1
-
-# profiling for megatron musa patch
 # export ENABLE_PROFILER=1
-# export PROFILER_FREQ=6   # 1~3 for warmup, 4 for active
+# export PROFILER_FREQ=4   # 1~3 for warmup, 4 for active
 # export PROFILER_WARMUP_STEPS=3
-# export PROFILER_ACTIVE_STEPS=3
-# export PROFILER_SAVE_DIR="${LOG_DIR}/profiler"
-
-# for musa env
-export SWIFT_ENABLE_TORCHADA=1         # enable torchada
-# export ENABLE_MEGATRON_MUSA_PATCH=1  # enbale megatron musa patch, not suggested for loading models wait too long, use with caution
-export NO_LOSS_REDUCE=1
-
-# swift
-export SWIFT_USE_MCORE_GDN=1
+# export PROFILER_ACTIVE_STEPS=1
+export PROFILER_SAVE_DIR="${LOG_DIR}/profiler"
 
 echo "================ TRAIN ENV ================"
 echo "HOSTNAME=$(hostname)"
@@ -112,6 +99,12 @@ echo "[CHECK] WORLD_SIZE_TOTAL=${WORLD_SIZE_TOTAL}"
 #    exit 1
 #fi
 
+export PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True'
+export TORCH_MCCL_AVOID_RECORD_STREAMS=1
+export ENABLE_GDN_BF16=1
+export MUSA_FAST_DEBUG=1
+export NO_LOSS_REDUCE=1
+export SWIFT_USE_MCORE_GDN=1
 
 NNODES="${NNODES}" \
 NODE_RANK="${NODE_RANK}" \
@@ -124,14 +117,14 @@ megatron pt \
     --save_safetensors true \
     --dataset ${DATA_PATH} \
     --load_from_cache_file true \
-    --split_dataset_ratio 0.01 \
-    --micro_batch_size ${MICRO_BATCH_SIZE} \
-    --global_batch_size ${GLOBAL_BATCH_SIZE} \
+    --split_dataset_ratio 0 \
+    --micro_batch_size 1 \
+    --global_batch_size 32 \
     --num_train_epochs 1 \
     --finetune true \
     --cross_entropy_loss_fusion true \
-    --tensor_model_parallel_size ${TP_SIZE} \
-    --pipeline_model_parallel_size ${PP_SIZE} \
+    --tensor_model_parallel_size 4 \
+    --pipeline_model_parallel_size 2 \
     --lr_warmup_fraction 0.02 \
     --lr ${MIN_LR} \
     --min_lr ${MIN_LR} \
@@ -152,21 +145,27 @@ megatron pt \
     --manual_gc_steps 100 \
     --apply_rope_fusion true \
     --attention_backend unfused \
+    --grad_reduce_in_bf16 \
     --packing \
+    --decoder-first-pipeline-num-layers 31 \
+    --decoder-last-pipeline-num-layers 33 \
     --recompute_granularity full \
     --recompute_method uniform \
     --recompute_num_layers 1 \
+    --bf16 true \
     2>&1 | tee "${LOG_DIR}/train_${TIMESTAMP}.log"
+    #--decoder-first-pipeline-num-layers 2 \
+    #--decoder-last-pipeline-num-layers 6 \
+    #--num_layers_per_virtual_pipeline_stage 2 \
+    #--pipeline-model-parallel-layout "E|ttttttttttt|ttttttttttt|ttttttttttt|ttttttttttt|tttttttttt|tttttttttt|L" \
+    #--distribute-saved-activations true \
+    #--recompute-granularity selective \
+    #--recompute-modules moe_act layernorm mlp core_attn \
+    #--recompute-granularity selective \
+    #--recompute-modules layernorm mlp core_attn \
     #--recompute_granularity full \
-    #--recompute_method uniform \
-    #--recompute_num_layers 1 \
+    #--recompute_method block \
+    #--recompute_num_layers 6 \
+    #--transformer_impl transformer_engine \
     #--group_by_length true \
-    #--recompute_granularity full \
-    #--recompute_method uniform \
-    #--recompute_num_layers 1 \
     # --attention_backend flash \ # unfuseds
-    #--grad_reduce_in_bf16 \
-    #--bf16 true \
-
-    # --decoder-first-pipeline-num-layers 31 \
-    # --decoder-last-pipeline-num-layers 33 \

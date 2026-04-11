@@ -25,16 +25,16 @@ MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/models/Qwen3.5-27B}"
 #MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/models/Qwen3.5-2B}"
 #MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/liang.geng/Qwen3.5-0.8B}"
 
-SEQ_LENGTH="${SEQ_LENGTH:-8192}"
+SEQ_LENGTH="${SEQ_LENGTH:-32768}"
 LR="${LR:-1e-5}"
 MIN_LR="${MIN_LR:-1e-6}"
 
-TP_SIZE="${TP_SIZE:-1}"
-PP_SIZE="${PP_SIZE:-4}"
+TP_SIZE="${TP_SIZE:-4}"
+PP_SIZE="${PP_SIZE:-2}"
 #EP_SIZE="${EP_SIZE:-4}"
 
 MICRO_BATCH_SIZE="${MICRO_BATCH_SIZE:-1}"
-GLOBAL_BATCH_SIZE="${GLOBAL_BATCH_SIZE:-128}"
+GLOBAL_BATCH_SIZE="${GLOBAL_BATCH_SIZE:-32}"
 
 DATALOADER_NUM_WORKERS="${DATALOADER_NUM_WORKERS:-8}"
 DATASET_NUM_PROC="${DATASET_NUM_PROC:-8}"
@@ -72,6 +72,8 @@ export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
 export SWIFT_ENABLE_TORCHADA=1         # enable torchada
 # export ENABLE_MEGATRON_MUSA_PATCH=1  # enbale megatron musa patch, not suggested for loading models wait too long, use with caution
 export NO_LOSS_REDUCE=1
+export PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' # enable memory reclaimation
+export TORCH_MCCL_AVOID_RECORD_STREAMS=1
 
 # swift
 export SWIFT_USE_MCORE_GDN=1
@@ -132,6 +134,8 @@ megatron pt \
     --cross_entropy_loss_fusion true \
     --tensor_model_parallel_size ${TP_SIZE} \
     --pipeline_model_parallel_size ${PP_SIZE} \
+    --decoder-first-pipeline-num-layers 31 \
+    --decoder-last-pipeline-num-layers 33 \
     --lr_warmup_fraction 0.02 \
     --lr ${MIN_LR} \
     --min_lr ${MIN_LR} \
@@ -144,7 +148,7 @@ megatron pt \
     --max_length ${SEQ_LENGTH} \
     --dataloader_num_workers 8 \
     --dataset_num_proc 8 \
-    --sequence_parallel false \
+    --sequence_parallel true \
     --padding_free false \
     --model_author swift \
     --model_name swift-robot \
@@ -156,6 +160,8 @@ megatron pt \
     --recompute_granularity full \
     --recompute_method uniform \
     --recompute_num_layers 1 \
+    --grad_reduce_in_bf16 \
+    --bf16 true \
     2>&1 | tee "${LOG_DIR}/train_${TIMESTAMP}.log"
     #--recompute_granularity full \
     #--recompute_method uniform \

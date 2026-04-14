@@ -155,7 +155,7 @@ megatron pt \
     --manual_gc true \
     --manual_gc_steps 100 \
     --apply_rope_fusion true \
-    --attention_backend unfused \
+    --attention_backend flash \
     --packing \
     --recompute_granularity full \
     --recompute_method uniform \

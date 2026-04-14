@@ -4,6 +4,7 @@ set -euo pipefail
 #pkill -f /usr/bin/python
 
 export LD_LIBRARY_PATH=/usr/local/musa/lib:/usr/local/musa/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+sed -i 's#if (implementation == "flash_attention_2" and is_fa2) or (implementation is None and is_fa2 and not is_fa3):#if True:#g' /usr/local/lib/python3.10/dist-packages/transformers/modeling_flash_attention_utils.py
 
 # only for test temperary
 NNODES=1
@@ -25,8 +26,8 @@ LOG_DIR="${WORK_DIR}/logs/S5000_train_qwen3_5-9b_node${NODE_RANK}_${TIMESTAMP}"
 mkdir -p "${LOG_DIR}"
 
 OUTPUT_PATH="${WORK_DIR}/output"
-DATA_PATH="${DATA_PATH:-/mnt/moer-train/public/liang.geng/alpaca-gpt4-data-zh}"
-MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/models/Qwen3.5-9B}"
+DATA_PATH="${DATA_PATH:-/data/datasets/alpaca-gpt4-data-zh}"
+MODEL_PATH="${MODEL_PATH:-/data/models/Qwen3.5-9B}"
 
 SEQ_LENGTH="${SEQ_LENGTH:-8192}"
 LR="${LR:-1e-5}"
@@ -64,6 +65,8 @@ export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
 # export MCCL_DEBUG=INFO
 # export MCCL_DEBUG_SUBSYS=ALL
 # export MUSA_FAST_DEBUG=1
+export SWIFT_DUMP_FLASH_ATTN_CASE=1
+export SWIFT_DUMP_FLASH_ATTN_DIR=${LOG_DIR}/flash_attn_debug_cases
 
 # profiling for megatron musa patch
 # export ENABLE_PROFILER=1
@@ -78,7 +81,7 @@ export SWIFT_ENABLE_TORCHADA=1         # enable torchada
 export NO_LOSS_REDUCE=1
 
 # swift
-export SWIFT_USE_MCORE_GDN=1
+#export SWIFT_USE_MCORE_GDN=1
 
 echo "================ TRAIN ENV ================"
 echo "HOSTNAME=$(hostname)"
@@ -155,7 +158,7 @@ megatron pt\
     --padding_free false \
     --model_author swift \
     --model_name swift-robot \
-    --attention_backend unfused \
+    --attention_backend flash \
     --recompute_granularity full \
     --recompute_method uniform \
     --recompute_num_layers 1 \

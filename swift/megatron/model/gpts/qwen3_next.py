@@ -1,4 +1,5 @@
 # Copyright (c) ModelScope Contributors. All rights reserved.
+import os
 import megatron.core
 import torch
 from copy import deepcopy
@@ -21,7 +22,7 @@ from typing import Optional, Tuple, Union
 
 from swift.megatron.utils import get_local_layer_specs
 from swift.model import ModelType
-from swift.utils import get_logger
+from swift.utils import get_env_args, get_logger, is_master
 from ..constant import MegatronModelType
 from ..gpt_bridge import GPTBridge
 from ..model_config import MegatronModelConfig
@@ -57,6 +58,23 @@ except ImportError:
     SplitAlongDim = None
 
 logger = get_logger()
+_FLASH_ATTN_CASE_DUMPED = False
+_FLASH_ATTN_DUMP_ENABLED = None
+_FLASH_ATTN_DUMP_DIR = None
+
+
+def _is_flash_attn_dump_enabled() -> bool:
+    global _FLASH_ATTN_DUMP_ENABLED
+    if _FLASH_ATTN_DUMP_ENABLED is None:
+        _FLASH_ATTN_DUMP_ENABLED = get_env_args('SWIFT_DUMP_FLASH_ATTN_CASE', bool, False)
+    return _FLASH_ATTN_DUMP_ENABLED
+
+
+def _get_flash_attn_dump_dir() -> str:
+    global _FLASH_ATTN_DUMP_DIR
+    if _FLASH_ATTN_DUMP_DIR is None:
+        _FLASH_ATTN_DUMP_DIR = get_env_args('SWIFT_DUMP_FLASH_ATTN_DIR', str, 'ms-swift/logs/flash_attn_debug_cases')
+    return _FLASH_ATTN_DUMP_DIR
 
 
 class Qwen3NextRMSNorm(torch.nn.Module):
@@ -125,6 +143,109 @@ class Qwen3NextSelfAttention(SelfAttention):
             )
         else:
             self.k_layernorm = None
+
+    @staticmethod
+    def _dump_tensor_to_cpu(tensor: Optional[torch.Tensor]):
+        if tensor is None:
+            return None
+        return tensor.detach().cpu().clone()
+
+    @staticmethod
+    def _tensor_summary(tensor: Optional[torch.Tensor]):
+        if tensor is None:
+            return None
+        return {
+            'shape': tuple(tensor.shape),
+            'dtype': str(tensor.dtype),
+            'device': str(tensor.device),
+            'requires_grad': bool(tensor.requires_grad),
+        }
+
+    @staticmethod
+    def _normalize_scalar(value):
+        if value is None:
+            return None
+        if torch.is_tensor(value):
+            if value.numel() == 1:
+                return value.detach().cpu().item()
+            return value.detach().cpu().clone()
+        return value
+
+    def _serialize_packed_seq_params(self, packed_seq_params: Optional[PackedSeqParams]):
+        if packed_seq_params is None:
+            return None
+        field_names = (
+            'qkv_format',
+            'cu_seqlens_q',
+            'cu_seqlens_kv',
+            'cu_seqlens_q_padded',
+            'cu_seqlens_kv_padded',
+            'max_seqlen_q',
+            'max_seqlen_kv',
+            'num_samples',
+        )
+        res = {}
+        for field_name in field_names:
+            res[field_name] = self._normalize_scalar(getattr(packed_seq_params, field_name, None))
+        return res
+
+    def _maybe_dump_flash_attn_case(
+        self,
+        *,
+        branch: str,
+        query: torch.Tensor,
+        key: torch.Tensor,
+        value: torch.Tensor,
+        gate: torch.Tensor,
+        attention_mask: Optional[torch.Tensor],
+        attention_bias: Optional[torch.Tensor],
+        packed_seq_params: Optional[PackedSeqParams],
+        attn_mask_type,
+    ):
+        global _FLASH_ATTN_CASE_DUMPED
+        if _FLASH_ATTN_CASE_DUMPED or not _is_flash_attn_dump_enabled() or not is_master():
+            return
+
+        try:
+            global_rank = torch.distributed.get_rank() if torch.distributed.is_initialized() else 0
+            dump_dir = os.path.abspath(_get_flash_attn_dump_dir())
+            os.makedirs(dump_dir, exist_ok=True)
+            attn_mask_type_name = getattr(attn_mask_type, 'name', str(attn_mask_type))
+            payload = {
+                'metadata': {
+                    'branch': branch,
+                    'layer_number': self.layer_number,
+                    'training': bool(self.training),
+                    'checkpoint_core_attention': bool(self.checkpoint_core_attention),
+                    'megatron_core_version': megatron.core.__version__,
+                    'global_rank': global_rank,
+                    'tensor_model_parallel_rank': get_tensor_model_parallel_rank(),
+                    'attn_mask_type': attn_mask_type_name,
+                    'query': self._tensor_summary(query),
+                    'key': self._tensor_summary(key),
+                    'value': self._tensor_summary(value),
+                    'gate': self._tensor_summary(gate),
+                    'attention_mask': self._tensor_summary(attention_mask),
+                    'attention_bias': self._tensor_summary(attention_bias),
+                },
+                'query': self._dump_tensor_to_cpu(query),
+                'key': self._dump_tensor_to_cpu(key),
+                'value': self._dump_tensor_to_cpu(value),
+                'gate': self._dump_tensor_to_cpu(gate),
+                'attention_mask': self._dump_tensor_to_cpu(attention_mask),
+                'attention_bias': self._dump_tensor_to_cpu(attention_bias),
+                'packed_seq_params': self._serialize_packed_seq_params(packed_seq_params),
+            }
+            output_path = os.path.join(
+                dump_dir, f'flash_attn_case_layer{self.layer_number}_rank{global_rank}_{branch}.pt')
+            torch.save(payload, output_path)
+            _FLASH_ATTN_CASE_DUMPED = True
+            logger.info(
+                f'[flash_attn_dump] saved replay case to {output_path}, '
+                f'query_shape={tuple(query.shape)}, key_shape={tuple(key.shape)}, value_shape={tuple(value.shape)}, '
+                f'attn_mask_type={attn_mask_type_name}')
+        except Exception as e:
+            logger.warning(f'[flash_attn_dump] failed to save replay case: {e}')
 
     # Code borrowed from NVIDIA/Megatron-LM
     def forward(
@@ -318,6 +439,17 @@ class Qwen3NextSelfAttention(SelfAttention):
 
         nvtx_range_push(suffix='core_attention')
         if self.checkpoint_core_attention and self.training:
+            self._maybe_dump_flash_attn_case(
+                branch='checkpointed_attention',
+                query=query,
+                key=key,
+                value=value,
+                gate=gate,
+                attention_mask=attention_mask,
+                attention_bias=attention_bias,
+                packed_seq_params=packed_seq_params,
+                attn_mask_type=attn_mask_type,
+            )
             core_attn_out = self._checkpointed_attention_forward(
                 query,
                 key,
@@ -330,6 +462,17 @@ class Qwen3NextSelfAttention(SelfAttention):
         else:
             if inference_context is None or inference_context.is_static_batching():
                 # Static batching attention kernel.
+                self._maybe_dump_flash_attn_case(
+                    branch='static_core_attention',
+                    query=query,
+                    key=key,
+                    value=value,
+                    gate=gate,
+                    attention_mask=attention_mask,
+                    attention_bias=attention_bias,
+                    packed_seq_params=packed_seq_params,
+                    attn_mask_type=attn_mask_type,
+                )
                 core_attn_out = self.core_attention(
                     query,
                     key,

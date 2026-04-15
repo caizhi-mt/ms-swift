@@ -18,7 +18,7 @@ from tqdm import tqdm
 from transformers.utils import is_torch_npu_available
 from typing import List, Optional, Tuple
 
-from swift.utils import get_logger, is_flash_attn_3_available, split_list
+from swift.utils import get_env_args, get_logger, is_flash_attn_3_available, split_list
 
 logger = get_logger()
 
@@ -801,6 +801,86 @@ def _patch_unified_memory():
         cpp_extension.load_inline = load_inline
 
 
+def _patch_qwen3_5_vision_rope():
+    if not get_env_args('SWIFT_ENABLE_QWEN3_5_VISION_ROPE', bool, True):
+        logger.info('Skip patching Qwen3.5 vision torch.rope.')
+        return
+
+    patched = False
+
+    def _patch_module(module):
+        nonlocal patched
+        if module is None or hasattr(module, '_swift_origin_apply_rotary_pos_emb_vision'):
+            return
+        if not hasattr(module, 'apply_rotary_pos_emb_vision'):
+            return
+
+        origin_apply_rotary_pos_emb_vision = module.apply_rotary_pos_emb_vision
+
+        def _apply_rotary_pos_emb_vision(q: torch.Tensor, k: torch.Tensor, cos: torch.Tensor,
+                                         sin: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+            fast_path = (
+                hasattr(torch, 'rope')
+                and q.device.type == 'musa'
+                and k.device == q.device
+                and cos.device == q.device
+                and sin.device == q.device
+                and q.ndim == 3
+                and k.ndim == 3
+                and cos.ndim == 2
+                and sin.ndim == 2
+                and q.shape == k.shape
+                and q.shape[0] == cos.shape[0] == sin.shape[0]
+                and q.shape[-1] == cos.shape[-1] == sin.shape[-1]
+                and q.shape[-1] % 2 == 0
+            )
+            if not fast_path:
+                return origin_apply_rotary_pos_emb_vision(q, k, cos, sin)
+
+            try:
+                q_input = q.unsqueeze(1).contiguous()
+                k_input = k.unsqueeze(1).contiguous()
+                # torch.rope on MUSA expects freq_cis to be 2D: [seq_len, head_dim]
+                freq_cis = torch.atan2(sin.float(), cos.float()).contiguous()
+                q_embed = torch.rope(
+                    q_input,
+                    freq_cis,
+                    rotary_interleaved=False,
+                    batch_first=False,
+                    multi_latent_attention=False,
+                ).squeeze(1)
+                k_embed = torch.rope(
+                    k_input,
+                    freq_cis,
+                    rotary_interleaved=False,
+                    batch_first=False,
+                    multi_latent_attention=False,
+                ).squeeze(1)
+                return q_embed.to(dtype=q.dtype), k_embed.to(dtype=k.dtype)
+            except Exception as e:
+                logger.warning_once(f'Qwen3.5 vision torch.rope fallback to origin implementation: {e}')
+                return origin_apply_rotary_pos_emb_vision(q, k, cos, sin)
+
+        module._swift_origin_apply_rotary_pos_emb_vision = origin_apply_rotary_pos_emb_vision
+        module.apply_rotary_pos_emb_vision = _apply_rotary_pos_emb_vision
+        patched = True
+
+    try:
+        from transformers.models.qwen3_5 import modeling_qwen3_5
+    except ImportError:
+        modeling_qwen3_5 = None
+    try:
+        from transformers.models.qwen3_5_moe import modeling_qwen3_5_moe
+    except ImportError:
+        modeling_qwen3_5_moe = None
+
+    _patch_module(modeling_qwen3_5)
+    _patch_module(modeling_qwen3_5_moe)
+
+    if patched:
+        logger.info('Enable Qwen3.5 vision torch.rope patch.')
+
+
 def _patch_dsa():
     from megatron.core.models.common.embeddings.rope_utils import apply_rotary_pos_emb
     from megatron.core.models.gpt import experimental_attention_variant_module_specs
@@ -965,6 +1045,7 @@ def init_megatron_env():
     _patch_TransformerLayer()
     _patch_compile_helpers()
     _patch_mrope()
+    _patch_qwen3_5_vision_rope()
     _patch__write_item()
     _patch_mtp()
     try:

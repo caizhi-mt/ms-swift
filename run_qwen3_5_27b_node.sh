@@ -74,6 +74,7 @@ export SWIFT_ENABLE_TORCHADA=1         # enable torchada
 export NO_LOSS_REDUCE=1
 export PYTORCH_MUSA_ALLOC_CONF='expandable_segments:True' # enable memory reclaimation
 export TORCH_MCCL_AVOID_RECORD_STREAMS=1
+export SWIFT_ENABLE_QWEN3_5_VISION_ROPE=1 # torch.rope fusion for qwen3.5 vision, only for musa env, use with caution
 
 # swift
 export SWIFT_USE_MCORE_GDN=1

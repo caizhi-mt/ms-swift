@@ -25,8 +25,8 @@ LOG_DIR="${WORK_DIR}/logs/S5000_train_qwen3_5-9b_node${NODE_RANK}_${TIMESTAMP}"
 mkdir -p "${LOG_DIR}"
 
 OUTPUT_PATH="${WORK_DIR}/output"
-DATA_PATH="${DATA_PATH:-/mnt/moer-train/public/liang.geng/alpaca-gpt4-data-zh}"
-MODEL_PATH="${MODEL_PATH:-/mnt/moer-train/public/models/Qwen3.5-9B}"
+DATA_PATH="${DATA_PATH:-/data/datasets/alpaca-gpt4-data-zh}"
+MODEL_PATH="${MODEL_PATH:-/data/models/Qwen3.5-9B}"
 
 SEQ_LENGTH="${SEQ_LENGTH:-8192}"
 LR="${LR:-1e-5}"
@@ -67,15 +67,16 @@ export OMP_NUM_THREADS="${OMP_NUM_THREADS:-4}"
 
 # profiling for megatron musa patch
 # export ENABLE_PROFILER=1
-# export PROFILER_FREQ=6   # 1~3 for warmup, 4 for active
+# export PROFILER_FREQ=4   # 1~3 for warmup, 4 for active
 # export PROFILER_WARMUP_STEPS=3
-# export PROFILER_ACTIVE_STEPS=3
+# export PROFILER_ACTIVE_STEPS=1
 # export PROFILER_SAVE_DIR="${LOG_DIR}/profiler"
 
 # for musa env
 export SWIFT_ENABLE_TORCHADA=1         # enable torchada
-# export ENABLE_MEGATRON_MUSA_PATCH=1  # enbale megatron musa patch, not suggested for loading models wait too long, use with caution
+# export ENABLE_MEGATRON_MUSA_PATCH=1  # enbale megatron musa patch, not suggested for loading models wait too long
 export NO_LOSS_REDUCE=1
+# export SWIFT_ENABLE_QWEN3_5_VISION_ROPE=1 # torch.rope fusion for qwen3.5 vision, only for musa env, use with caution
 
 # swift
 export SWIFT_USE_MCORE_GDN=1
